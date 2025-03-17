@@ -9,4 +9,5 @@ const GlobalLayout = () => {
     </>
   );
 };
+
 export default GlobalLayout;

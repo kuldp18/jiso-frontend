@@ -1,149 +1,158 @@
-import { useState } from "react";
+import { useState, JSX } from "react";
+import { Link } from "react-router-dom";
 import { Menu, X, Sun, Moon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
-const Navbar = () => {
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [isDarkMode, setIsDarkMode] = useState(true);
+interface NavLinkItem {
+  path: string;
+  label: string;
+}
 
-  const toggleMenu = () => {
+interface NavLinkProps extends NavLinkItem {
+  className?: string;
+}
+
+interface ThemeToggleProps {
+  isDarkMode: boolean;
+  toggleTheme: () => void;
+}
+
+const navLinks: NavLinkItem[] = [
+  { path: "/", label: "Home" },
+  { path: "/features", label: "Features" },
+  { path: "/about", label: "About" },
+  { path: "/contact", label: "Contact" },
+];
+
+const Navbar = (): JSX.Element => {
+  const [isMenuOpen, setIsMenuOpen] = useState<boolean>(false);
+  const [isDarkMode, setIsDarkMode] = useState<boolean>(true);
+
+  const toggleMenu = (): void => {
     setIsMenuOpen(!isMenuOpen);
   };
 
-  const toggleTheme = () => {
+  const toggleTheme = (): void => {
     setIsDarkMode(!isDarkMode);
     document.body.classList.toggle("dark");
   };
 
+  const NavLink = ({
+    path,
+    label,
+    className = "",
+  }: NavLinkProps): JSX.Element => (
+    <Link
+      to={path}
+      className={`text-sm font-medium text-foreground hover:text-primary transition-colors ${className}`}
+    >
+      {label}
+    </Link>
+  );
+
   return (
-    <nav className="sticky top-0 z-50 w-full border-b border-border bg-background/80 backdrop-blur-sm">
-      <div className="mx-auto flex h-16 max-w-screen-xl items-center px-4">
-        {/* Logo */}
-        <div className="flex-1 flex justify-start">
-          <a
-            href="/"
-            className="flex items-center text-xl font-bold text-primary"
-          >
-            Jiso
-          </a>
-        </div>
+    <header className="sticky top-0 z-50 w-full h-[64px] border-b border-border bg-background/80 backdrop-blur-sm">
+      <nav className="h-full mx-auto max-w-screen-xl">
+        <div className="flex items-center h-full">
+          {/* Logo */}
+          <div className="flex-1 flex justify-start">
+            <Link
+              to="/"
+              className="flex items-center text-xl font-bold text-primary"
+            >
+              Jiso
+            </Link>
+          </div>
 
-        {/* Desktop navigation - centered */}
-        <div className="hidden md:flex flex-1 items-center justify-center space-x-6">
-          <a
-            href="/"
-            className="text-sm font-medium text-foreground hover:text-primary transition-colors"
-          >
-            Home
-          </a>
-          <a
-            href="/features"
-            className="text-sm font-medium text-foreground hover:text-primary transition-colors"
-          >
-            Features
-          </a>
-          <a
-            href="/about"
-            className="text-sm font-medium text-foreground hover:text-primary transition-colors"
-          >
-            About
-          </a>
-          <a
-            href="/contact"
-            className="text-sm font-medium text-foreground hover:text-primary transition-colors"
-          >
-            Contact
-          </a>
-        </div>
+          {/* Desktop navigation - centered */}
+          <ul className="hidden md:flex flex-1 items-center justify-center space-x-6 list-none">
+            {navLinks.map((link) => (
+              <li key={link.path}>
+                <NavLink path={link.path} label={link.label} />
+              </li>
+            ))}
+          </ul>
 
-        {/* Actions */}
-        <div className="hidden md:flex flex-1 items-center justify-end space-x-2">
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={toggleTheme}
-            className="flex items-center justify-center"
-          >
-            {isDarkMode ? (
-              <Sun className="h-5 w-5" />
-            ) : (
-              <Moon className="h-5 w-5" />
-            )}
-          </Button>
-          <Button variant="outline" size="sm">
-            Login
-          </Button>
-          <Button size="sm">Signup</Button>
-        </div>
+          {/* Actions */}
+          <section className="hidden md:flex flex-1 items-center justify-end space-x-4">
+            <Link to="/login">
+              <Button variant="outline" size="sm">
+                Login
+              </Button>
+            </Link>
+            <Link to="/signup">
+              <Button size="sm">Signup</Button>
+            </Link>
+            <ThemeToggle isDarkMode={isDarkMode} toggleTheme={toggleTheme} />
+          </section>
 
-        {/* Mobile menu button */}
-        <div className="flex md:hidden items-center ml-auto space-x-2">
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={toggleTheme}
-            className="flex items-center justify-center"
-          >
-            {isDarkMode ? (
-              <Sun className="h-5 w-5" />
-            ) : (
-              <Moon className="h-5 w-5" />
-            )}
-          </Button>
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={toggleMenu}
-            className="flex items-center justify-center"
-          >
-            {isMenuOpen ? (
-              <X className="h-5 w-5" />
-            ) : (
-              <Menu className="h-5 w-5" />
-            )}
-          </Button>
+          {/* Mobile menu button */}
+          <div className="flex md:hidden items-center ml-auto space-x-2">
+            <ThemeToggle isDarkMode={isDarkMode} toggleTheme={toggleTheme} />
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={toggleMenu}
+              aria-expanded={isMenuOpen}
+              aria-label="Toggle menu"
+              className="flex items-center justify-center"
+            >
+              {isMenuOpen ? (
+                <X className="h-5 w-5" />
+              ) : (
+                <Menu className="h-5 w-5" />
+              )}
+            </Button>
+          </div>
         </div>
-      </div>
+      </nav>
 
       {/* Mobile menu */}
       {isMenuOpen && (
-        <div className="md:hidden bg-background border-b border-border">
-          <div className="space-y-1 px-4 py-3">
-            <a
-              href="/"
-              className="block text-sm font-medium py-2 text-foreground hover:text-primary transition-colors"
-            >
-              Home
-            </a>
-            <a
-              href="/features"
-              className="block text-sm font-medium py-2 text-foreground hover:text-primary transition-colors"
-            >
-              Features
-            </a>
-            <a
-              href="/about"
-              className="block text-sm font-medium py-2 text-foreground hover:text-primary transition-colors"
-            >
-              About
-            </a>
-            <a
-              href="/contact"
-              className="block text-sm font-medium py-2 text-foreground hover:text-primary transition-colors"
-            >
-              Contact
-            </a>
-            <div className="pt-2 pb-1 flex flex-col space-y-2">
-              <Button variant="outline" className="w-full">
-                Login
-              </Button>
-              <Button className="w-full">Signup</Button>
-            </div>
-          </div>
-        </div>
+        <aside className="md:hidden bg-background border-b border-border">
+          <nav className="space-y-1 px-4 py-3">
+            <ul className="list-none space-y-1">
+              {navLinks.map((link) => (
+                <li key={link.path}>
+                  <NavLink
+                    path={link.path}
+                    label={link.label}
+                    className="block py-2"
+                  />
+                </li>
+              ))}
+            </ul>
+            <section className="pt-2 pb-1 flex flex-col space-y-2">
+              <Link to="/login" className="w-full">
+                <Button variant="outline" className="w-full">
+                  Login
+                </Button>
+              </Link>
+              <Link to="/signup" className="w-full">
+                <Button className="w-full">Signup</Button>
+              </Link>
+            </section>
+          </nav>
+        </aside>
       )}
-    </nav>
+    </header>
   );
 };
+
+// Extracted theme toggle component to avoid duplication
+const ThemeToggle = ({
+  isDarkMode,
+  toggleTheme,
+}: ThemeToggleProps): JSX.Element => (
+  <Button
+    variant="ghost"
+    size="icon"
+    onClick={toggleTheme}
+    aria-label={isDarkMode ? "Switch to light mode" : "Switch to dark mode"}
+    className="flex items-center justify-center"
+  >
+    {isDarkMode ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
+  </Button>
+);
 
 export default Navbar;
