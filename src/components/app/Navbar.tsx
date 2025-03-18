@@ -1,5 +1,5 @@
 import { useState, JSX } from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { Menu, X, Sun, Moon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
@@ -25,14 +25,14 @@ const navLinks: NavLinkItem[] = [
 ];
 
 const Navbar = (): JSX.Element => {
-  const [isMenuOpen, setIsMenuOpen] = useState<boolean>(false);
-  const [isDarkMode, setIsDarkMode] = useState<boolean>(true);
+  const location = useLocation();
+  const isLandingPage = location.pathname === "/";
 
-  const toggleMenu = (): void => {
-    setIsMenuOpen(!isMenuOpen);
-  };
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isDarkMode, setIsDarkMode] = useState(true);
 
-  const toggleTheme = (): void => {
+  const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
+  const toggleTheme = () => {
     setIsDarkMode(!isDarkMode);
     document.body.classList.toggle("dark");
   };
@@ -51,43 +51,34 @@ const Navbar = (): JSX.Element => {
   );
 
   return (
-    <header className="sticky top-0 z-50 w-full h-[64px] border-b border-border bg-background/80 backdrop-blur-sm">
-      <nav className="h-full mx-auto max-w-screen-xl">
-        <div className="flex items-center h-full">
-          {/* Logo */}
-          <div className="flex-1 flex justify-start">
+    <header className="sticky top-0 z-50 w-full border-b border-border bg-background/80 backdrop-blur-sm">
+      <nav className="mx-auto max-w-screen-xl px-3 sm:px-4">
+        <div className="relative flex items-center justify-between h-16 w-full">
+          {/* Left - Logo */}
+          <div className="flex items-center h-full">
             <Link
               to="/"
-              className="flex items-center text-xl font-bold text-primary"
+              className="text-xl font-bold text-primary leading-none flex items-center"
             >
               Jiso
             </Link>
           </div>
 
-          {/* Desktop navigation - centered */}
-          <ul className="hidden md:flex flex-1 items-center justify-center space-x-6 list-none">
-            {navLinks.map((link) => (
-              <li key={link.path}>
-                <NavLink path={link.path} label={link.label} />
-              </li>
-            ))}
-          </ul>
+          {/* Center - Nav links (only on landing page) */}
+          {isLandingPage && (
+            <div className="hidden md:flex absolute left-1/2 -translate-x-1/2 h-full items-center">
+              <ul className="flex gap-6 items-center h-full">
+                {navLinks.map((link) => (
+                  <li key={link.path} className="flex items-center h-full">
+                    <NavLink path={link.path} label={link.label} />
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
 
-          {/* Actions */}
-          <section className="hidden md:flex flex-1 items-center justify-end space-x-4">
-            <Link to="/login">
-              <Button variant="outline" size="sm">
-                Login
-              </Button>
-            </Link>
-            <Link to="/signup">
-              <Button size="sm">Signup</Button>
-            </Link>
-            <ThemeToggle isDarkMode={isDarkMode} toggleTheme={toggleTheme} />
-          </section>
-
-          {/* Mobile menu button */}
-          <div className="flex md:hidden items-center ml-auto space-x-2">
+          {/* Right - Buttons (Mobile) */}
+          <div className="flex md:hidden items-center gap-2 h-full">
             <ThemeToggle isDarkMode={isDarkMode} toggleTheme={toggleTheme} />
             <Button
               variant="ghost"
@@ -95,7 +86,7 @@ const Navbar = (): JSX.Element => {
               onClick={toggleMenu}
               aria-expanded={isMenuOpen}
               aria-label="Toggle menu"
-              className="flex items-center justify-center"
+              className="h-9 w-9 flex items-center justify-center"
             >
               {isMenuOpen ? (
                 <X className="h-5 w-5" />
@@ -104,34 +95,55 @@ const Navbar = (): JSX.Element => {
               )}
             </Button>
           </div>
+
+          {/* Right (Desktop) */}
+          <div className="hidden md:flex items-center gap-3 h-full">
+            <ThemeToggle isDarkMode={isDarkMode} toggleTheme={toggleTheme} />
+            <Link to="/login">
+              <Button variant="outline" size="sm" className="h-9">
+                Login
+              </Button>
+            </Link>
+            <Link to="/signup">
+              <Button size="sm" className="h-9">
+                Signup
+              </Button>
+            </Link>
+          </div>
         </div>
       </nav>
 
-      {/* Mobile menu */}
+      {/* Mobile Menu */}
       {isMenuOpen && (
-        <aside className="md:hidden bg-background border-b border-border">
-          <nav className="space-y-1 px-4 py-3">
-            <ul className="list-none space-y-1">
-              {navLinks.map((link) => (
-                <li key={link.path}>
-                  <NavLink
-                    path={link.path}
-                    label={link.label}
-                    className="block py-2"
-                  />
-                </li>
-              ))}
-            </ul>
-            <section className="pt-2 pb-1 flex flex-col space-y-2">
-              <Link to="/login" className="w-full">
-                <Button variant="outline" className="w-full">
+        <aside className="md:hidden bg-background border-t border-border">
+          <nav className="px-3 sm:px-4 py-3">
+            {isLandingPage && (
+              <ul className="space-y-2">
+                {navLinks.map((link) => (
+                  <li key={link.path}>
+                    <NavLink
+                      path={link.path}
+                      label={link.label}
+                      className="block py-2"
+                    />
+                  </li>
+                ))}
+              </ul>
+            )}
+            <div
+              className={`${
+                isLandingPage ? "pt-3" : "pt-0"
+              } flex flex-col gap-2`}
+            >
+              <Link to="/login">
+                <Button variant="outline" className="w-full h-9">
                   Login
                 </Button>
               </Link>
-              <Link to="/signup" className="w-full">
-                <Button className="w-full">Signup</Button>
+              <Link to="/signup">
+                <Button className="w-full h-9">Signup</Button>
               </Link>
-            </section>
+            </div>
           </nav>
         </aside>
       )}
@@ -139,7 +151,6 @@ const Navbar = (): JSX.Element => {
   );
 };
 
-// Extracted theme toggle component to avoid duplication
 const ThemeToggle = ({
   isDarkMode,
   toggleTheme,
@@ -149,7 +160,7 @@ const ThemeToggle = ({
     size="icon"
     onClick={toggleTheme}
     aria-label={isDarkMode ? "Switch to light mode" : "Switch to dark mode"}
-    className="flex items-center justify-center"
+    className="h-9 w-9 flex items-center justify-center"
   >
     {isDarkMode ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
   </Button>
