@@ -4,6 +4,11 @@
 
 @custom-variant dark (&:is(.dark *));
 
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: 64px;
+}
+
 :root {
   --radius: 0.75rem;
   --background: hsl(309 15% 97%);

@@ -8,20 +8,16 @@ interface NavLinkItem {
   label: string;
 }
 
-interface NavLinkProps extends NavLinkItem {
-  className?: string;
-}
-
 interface ThemeToggleProps {
   isDarkMode: boolean;
   toggleTheme: () => void;
 }
 
 const navLinks: NavLinkItem[] = [
-  { path: "/", label: "Home" },
-  { path: "/features", label: "Features" },
-  { path: "/about", label: "About" },
-  { path: "/contact", label: "Contact" },
+  { path: "#home", label: "Home" },
+  { path: "#features", label: "Features" },
+  { path: "#about", label: "About" },
+  { path: "#contact", label: "Contact" },
 ];
 
 const Navbar = (): JSX.Element => {
@@ -36,19 +32,6 @@ const Navbar = (): JSX.Element => {
     setIsDarkMode(!isDarkMode);
     document.body.classList.toggle("dark");
   };
-
-  const NavLink = ({
-    path,
-    label,
-    className = "",
-  }: NavLinkProps): JSX.Element => (
-    <Link
-      to={path}
-      className={`text-sm font-medium text-foreground hover:text-primary transition-colors ${className}`}
-    >
-      {label}
-    </Link>
-  );
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border bg-background/80 backdrop-blur-sm">
@@ -70,7 +53,7 @@ const Navbar = (): JSX.Element => {
               <ul className="flex gap-6 items-center h-full">
                 {navLinks.map((link) => (
                   <li key={link.path} className="flex items-center h-full">
-                    <NavLink path={link.path} label={link.label} />
+                    <a href={link.path}>{link.label}</a>
                   </li>
                 ))}
               </ul>
@@ -121,11 +104,9 @@ const Navbar = (): JSX.Element => {
               <ul className="space-y-2">
                 {navLinks.map((link) => (
                   <li key={link.path}>
-                    <NavLink
-                      path={link.path}
-                      label={link.label}
-                      className="block py-2"
-                    />
+                    <a href={link.path} className="block py-2">
+                      {link.label}
+                    </a>
                   </li>
                 ))}
               </ul>
