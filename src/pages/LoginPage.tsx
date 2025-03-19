@@ -110,7 +110,7 @@ const LoginPage = () => {
               </Link>
             </div>
 
-            <Button type="submit" className="w-full py-3 mt-2">
+            <Button type="submit" className="w-full py-3 mt-6">
               Login
             </Button>
           </form>

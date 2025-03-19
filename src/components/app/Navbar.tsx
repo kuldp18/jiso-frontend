@@ -83,12 +83,12 @@ const Navbar = (): JSX.Element => {
           <div className="hidden md:flex items-center gap-3 h-full">
             <ThemeToggle isDarkMode={isDarkMode} toggleTheme={toggleTheme} />
             <Link to="/login">
-              <Button variant="outline" size="sm" className="h-9">
+              <Button variant="outline" size="sm" className="h-9 rounded-none">
                 Login
               </Button>
             </Link>
             <Link to="/signup">
-              <Button size="sm" className="h-9">
+              <Button size="sm" className="h-9 rounded-none">
                 Signup
               </Button>
             </Link>
