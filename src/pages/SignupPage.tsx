@@ -20,7 +20,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+
+import { useAuthStore } from "@/stores/authStore";
+import { Loader } from "lucide-react";
 
 // signup schema
 const signupSchema = z.object({
@@ -61,8 +64,19 @@ const SignupPage = () => {
     },
   });
 
-  function onSubmit(values: z.infer<typeof signupSchema>) {
-    console.log(values);
+  const signup = useAuthStore((state) => state.signup);
+  const isLoading = useAuthStore((state) => state.isLoading);
+  const error = useAuthStore((state) => state.error);
+
+  const navigate = useNavigate();
+
+  async function onSubmit(values: z.infer<typeof signupSchema>) {
+    try {
+      await signup(values);
+      navigate("/verify-email");
+    } catch (error) {
+      console.log(`Error while signing up: ${error}`);
+    }
   }
   return (
     <>
@@ -83,6 +97,14 @@ const SignupPage = () => {
               </Link>
             </p>
           </div>
+
+          {/* error */}
+          {error && (
+            <div>
+              <p className="text-red-500 text-sm text-center mt-2">{error}</p>
+            </div>
+          )}
+
           <Form {...signupForm}>
             <form
               onSubmit={signupForm.handleSubmit(onSubmit)}
@@ -211,8 +233,16 @@ const SignupPage = () => {
                 />
               </div>
 
-              <Button type="submit" className="w-full mt-4">
-                Signup
+              <Button
+                type="submit"
+                className="w-full mt-4"
+                disabled={isLoading}
+              >
+                {isLoading ? (
+                  <Loader className="animate-spin mx-auto" />
+                ) : (
+                  "Signup"
+                )}
               </Button>
             </form>
           </Form>

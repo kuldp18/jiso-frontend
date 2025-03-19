@@ -18,6 +18,11 @@ import {
   InputOTPSlot,
 } from "@/components/ui/input-otp";
 
+import { useAuthStore } from "@/stores/authStore";
+import { toast } from "sonner";
+import { useNavigate } from "react-router-dom";
+import { Loader } from "lucide-react";
+
 const FormSchema = z.object({
   pin: z.string().min(6, {
     message: "Your one-time password must be 6 characters.",
@@ -32,13 +37,27 @@ const VerifyEmail = () => {
     },
   });
 
-  function onSubmit(data: z.infer<typeof FormSchema>) {
-    // log the data
-    console.log("One-Time Password:", data.pin);
+  const verifyEmail = useAuthStore((state) => state.verifyEmail);
+  const error = useAuthStore((state) => state.error);
+  const isLoading = useAuthStore((state) => state.isLoading);
+  const user = useAuthStore((state) => state.user);
+
+  const navigate = useNavigate();
+
+  async function onSubmit(data: z.infer<typeof FormSchema>) {
+    try {
+      await verifyEmail(user?.email, data.pin);
+      navigate("/dashboard");
+      toast.success("Email verified successfully!");
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (error: any) {
+      toast.error(error.response?.data?.message || "Error verifying email");
+    }
   }
 
   return (
     <main className="grid place-content-center min-h-[calc(100vh-64.8px)]">
+      {error && toast.error(error)}
       <Form {...form}>
         <form
           onSubmit={form.handleSubmit(onSubmit)}
@@ -70,8 +89,12 @@ const VerifyEmail = () => {
             )}
           />
 
-          <Button type="submit" className="w-full">
-            Verify
+          <Button type="submit" className="w-full" disabled={isLoading}>
+            {isLoading ? (
+              <Loader className="animate-spin mx-auto" />
+            ) : (
+              "Verify Email"
+            )}
           </Button>
         </form>
       </Form>

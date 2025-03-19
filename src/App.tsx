@@ -1,12 +1,15 @@
 import {
+  DashboardPage,
   GlobalLayout,
   LandingPage,
   LoginPage,
   SignupPage,
-  VerifyEmail,
+  VerifyEmailPage,
 } from "@/pages";
 
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
+
+import { Toaster } from "sonner";
 
 const router = createBrowserRouter([
   {
@@ -27,7 +30,11 @@ const router = createBrowserRouter([
       },
       {
         path: "verify-email",
-        element: <VerifyEmail />,
+        element: <VerifyEmailPage />,
+      },
+      {
+        path: "dashboard",
+        element: <DashboardPage />,
       },
     ],
   },
@@ -37,6 +44,16 @@ const App = () => {
   return (
     <>
       <RouterProvider router={router} />
+      <Toaster
+        position="top-center"
+        toastOptions={{
+          style: {
+            color: `white`,
+            backgroundColor: "hsl(309 40% 30%)",
+            fontSize: "0.875rem",
+          },
+        }}
+      />
     </>
   );
 };
