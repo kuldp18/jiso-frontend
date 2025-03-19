@@ -66,18 +66,18 @@ const SignupPage = () => {
   }
   return (
     <>
-      <main className="grid place-content-center min-h-[calc(100vh-64.8px)]">
-        <div className="w-[500px] p-8 border rounded-lg shadow-md">
-          <h1 className="text-2xl font-bold mb-4 text-center">
+      <main className="flex justify-center items-center min-h-[calc(100vh-64.8px)] px-2 sm:px-4 py-6">
+        <div className="w-full sm:max-w-[500px] p-3 sm:p-8 border rounded-lg shadow-md">
+          <h1 className="text-xl sm:text-2xl font-bold mb-3 sm:mb-4 text-center">
             Create New Account
           </h1>
 
           <div>
-            <p className="text-sm text-center">
+            <p className="text-xs sm:text-sm text-center">
               Already have an account?
               <Link
                 to="/login"
-                className="hover:underline text-pink-400 ml-2 hover:font-semibold"
+                className="hover:underline text-pink-400 ml-1 sm:ml-2 hover:font-semibold"
               >
                 Login
               </Link>
@@ -86,21 +86,20 @@ const SignupPage = () => {
           <Form {...signupForm}>
             <form
               onSubmit={signupForm.handleSubmit(onSubmit)}
-              className="space-y-6 mt-6"
+              className="space-y-4 mt-4 sm:mt-6"
             >
-              <div className="grid grid-cols-2 gap-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
                 {/* First Name */}
                 <FormField
                   control={signupForm.control}
                   name="firstName"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>First name</FormLabel>
-
+                      <FormLabel className="text-sm">Firstname</FormLabel>
                       <FormControl>
                         <Input {...field} />
                       </FormControl>
-                      <FormMessage />
+                      <FormMessage className="text-xs" />
                     </FormItem>
                   )}
                 />
@@ -110,12 +109,11 @@ const SignupPage = () => {
                   name="lastName"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Last name</FormLabel>
-
+                      <FormLabel className="text-sm">Lastname</FormLabel>
                       <FormControl>
                         <Input {...field} />
                       </FormControl>
-                      <FormMessage />
+                      <FormMessage className="text-xs" />
                     </FormItem>
                   )}
                 />
@@ -127,12 +125,11 @@ const SignupPage = () => {
                 name="email"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Email</FormLabel>
-
+                    <FormLabel className="text-sm">Email</FormLabel>
                     <FormControl>
                       <Input {...field} />
                     </FormControl>
-                    <FormMessage />
+                    <FormMessage className="text-xs" />
                   </FormItem>
                 )}
               />
@@ -143,8 +140,7 @@ const SignupPage = () => {
                 name="password"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Password</FormLabel>
-
+                    <FormLabel className="text-sm">Password</FormLabel>
                     <FormControl>
                       <Input
                         placeholder="Password must be at least 8 characters"
@@ -152,19 +148,19 @@ const SignupPage = () => {
                         type="password"
                       />
                     </FormControl>
-                    <FormMessage />
+                    <FormMessage className="text-xs" />
                   </FormItem>
                 )}
               />
 
-              <div className="grid grid-cols-2 gap-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
                 {/* Gender */}
                 <FormField
                   control={signupForm.control}
                   name="gender"
                   render={({ field }) => (
                     <FormItem className="w-full">
-                      <FormLabel>Gender</FormLabel>
+                      <FormLabel className="text-sm">Gender</FormLabel>
                       <Select
                         onValueChange={field.onChange}
                         defaultValue={field.value}
@@ -180,8 +176,7 @@ const SignupPage = () => {
                           <SelectItem value="other">Other</SelectItem>
                         </SelectContent>
                       </Select>
-
-                      <FormMessage />
+                      <FormMessage className="text-xs" />
                     </FormItem>
                   )}
                 />
@@ -194,7 +189,7 @@ const SignupPage = () => {
                     field: { onChange, onBlur, name, ref, value },
                   }) => (
                     <FormItem className="w-full">
-                      <FormLabel>Age</FormLabel>
+                      <FormLabel className="text-sm">Age</FormLabel>
                       <FormControl>
                         <Input
                           placeholder="Age must be at least 18"
@@ -210,7 +205,7 @@ const SignupPage = () => {
                           value={value || ""}
                         />
                       </FormControl>
-                      <FormMessage />
+                      <FormMessage className="text-xs" />
                     </FormItem>
                   )}
                 />
