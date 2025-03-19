@@ -1,13 +1,10 @@
-import axios from "axios";
+import api from "@/api";
 import { UserSignupData, LoginCredentials } from "@/types/auth.types";
 
-axios.defaults.withCredentials = true; // Enable sending cookies with requests
-
 export const signupUser = async (userData: UserSignupData) => {
-  const signupUrl = `${import.meta.env.VITE_BACKEND_URL}/auth/signup`;
   const { firstName, lastName, email, password, age, gender } = userData;
   try {
-    const response = await axios.post(signupUrl, {
+    const response = await api.post("/auth/signup", {
       firstName,
       lastName,
       email,
@@ -23,10 +20,9 @@ export const signupUser = async (userData: UserSignupData) => {
 };
 
 export const loginUser = async (credentials: LoginCredentials) => {
-  const loginUrl = `${import.meta.env.VITE_BACKEND_URL}/auth/login`;
   const { email, password } = credentials;
   try {
-    const response = await axios.post(loginUrl, {
+    const response = await api.post("/auth/login", {
       email,
       password,
     });
@@ -41,17 +37,26 @@ export const verifyUserEmail = async (
   email: string | undefined,
   pin: string
 ) => {
-  const verifyUrl = `${import.meta.env.VITE_BACKEND_URL}/auth/verify-email`;
   try {
     if (!email) return;
 
-    const response = await axios.post(verifyUrl, {
+    const response = await api.post("/auth/verify-email", {
       email,
       code: pin,
     });
     return response.data;
   } catch (error) {
     console.error("Error while verifying email:", error);
+    throw error;
+  }
+};
+
+export const checkAuthStatus = async () => {
+  try {
+    const response = await api.post("/auth/check-auth");
+    return response.data;
+  } catch (error) {
+    console.error("Error while checking user auth status:", error);
     throw error;
   }
 };

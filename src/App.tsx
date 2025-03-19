@@ -8,8 +8,10 @@ import {
 } from "@/pages";
 
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
-
 import { Toaster } from "sonner";
+import { ProtectedRoute, RedirectAuthenticated } from "./components/app";
+import { useAuthStore } from "./stores/authStore";
+import { useEffect } from "react";
 
 const router = createBrowserRouter([
   {
@@ -22,11 +24,19 @@ const router = createBrowserRouter([
       },
       {
         path: "signup",
-        element: <SignupPage />,
+        element: (
+          <RedirectAuthenticated>
+            <SignupPage />
+          </RedirectAuthenticated>
+        ),
       },
       {
         path: "login",
-        element: <LoginPage />,
+        element: (
+          <RedirectAuthenticated>
+            <LoginPage />
+          </RedirectAuthenticated>
+        ),
       },
       {
         path: "verify-email",
@@ -34,13 +44,23 @@ const router = createBrowserRouter([
       },
       {
         path: "dashboard",
-        element: <DashboardPage />,
+        element: (
+          <ProtectedRoute>
+            <DashboardPage />
+          </ProtectedRoute>
+        ),
       },
     ],
   },
 ]);
 
 const App = () => {
+  const checkAuth = useAuthStore((state) => state.checkAuth);
+
+  useEffect(() => {
+    checkAuth();
+  }, [checkAuth]);
+
   return (
     <>
       <RouterProvider router={router} />

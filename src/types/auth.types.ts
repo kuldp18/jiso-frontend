@@ -19,4 +19,5 @@ export interface User {
   gender: string;
   age: number | string;
   verified?: boolean;
+  authenticated?: boolean;
 }
