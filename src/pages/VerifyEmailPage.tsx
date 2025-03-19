@@ -20,7 +20,7 @@ import {
 
 import { useAuthStore } from "@/stores/authStore";
 import { toast } from "sonner";
-import { useNavigate } from "react-router-dom";
+import { Navigate, useNavigate } from "react-router-dom";
 import { Loader } from "lucide-react";
 
 const FormSchema = z.object({
@@ -53,6 +53,10 @@ const VerifyEmail = () => {
     } catch (error: any) {
       toast.error(error.response?.data?.message || "Error verifying email");
     }
+  }
+
+  if (user?.verified) {
+    return <Navigate to="/dashboard" replace />;
   }
 
   return (
