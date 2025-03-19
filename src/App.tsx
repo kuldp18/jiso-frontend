@@ -1,4 +1,11 @@
-import { GlobalLayout, LandingPage, LoginPage, SignupPage } from "@/pages";
+import {
+  GlobalLayout,
+  LandingPage,
+  LoginPage,
+  SignupPage,
+  VerifyEmail,
+} from "@/pages";
+
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 
 const router = createBrowserRouter([
@@ -17,6 +24,10 @@ const router = createBrowserRouter([
       {
         path: "login",
         element: <LoginPage />,
+      },
+      {
+        path: "verify-email",
+        element: <VerifyEmail />,
       },
     ],
   },
