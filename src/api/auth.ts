@@ -55,9 +55,9 @@ export const checkAuthStatus = async () => {
   try {
     const response = await api.post("/auth/check-auth");
     return response.data;
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
   } catch (error) {
-    console.error("Error while checking user auth status:", error);
-    throw error;
+    return null;
   }
 };
 

@@ -12,6 +12,7 @@ import { Toaster } from "sonner";
 import { ProtectedRoute, RedirectAuthenticated } from "./components/app";
 import { useAuthStore } from "./stores/authStore";
 import { useEffect } from "react";
+import { Loader } from "lucide-react";
 
 const router = createBrowserRouter([
   {
@@ -57,9 +58,19 @@ const router = createBrowserRouter([
 const App = () => {
   const checkAuth = useAuthStore((state) => state.checkAuth);
 
+  const isCheckingAuth = useAuthStore((state) => state.isCheckingAuth);
+
   useEffect(() => {
     checkAuth();
   }, [checkAuth]);
+
+  if (isCheckingAuth) {
+    return (
+      <div className="flex justify-center items-center min-h-screen">
+        <Loader className="animate-spin mx-auto" />
+      </div>
+    );
+  }
 
   return (
     <>

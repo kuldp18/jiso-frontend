@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -12,6 +12,10 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+
+import { useAuthStore } from "@/stores/authStore";
+import { toast } from "sonner";
+import { Loader } from "lucide-react";
 
 // login schema
 const loginSchema = z.object({
@@ -36,8 +40,19 @@ const LoginPage = () => {
     },
   });
 
-  function onSubmit(values: z.infer<typeof loginSchema>) {
-    console.log(values);
+  const navigate = useNavigate();
+  const login = useAuthStore((state) => state.login);
+  const isLoading = useAuthStore((state) => state.isLoading);
+
+  async function onSubmit(values: z.infer<typeof loginSchema>) {
+    try {
+      await login(values);
+      navigate("/dashboard");
+      toast.success("Logged in!");
+    } catch (error) {
+      toast.error(`Error: Please check your email and password`);
+      console.error("Login error:", error);
+    }
   }
 
   return (
@@ -110,8 +125,16 @@ const LoginPage = () => {
               </Link>
             </div>
 
-            <Button type="submit" className="w-full py-3 mt-6">
-              Login
+            <Button
+              type="submit"
+              className="w-full py-3 mt-6"
+              disabled={isLoading}
+            >
+              {isLoading ? (
+                <Loader className="animate-spin mx-auto" />
+              ) : (
+                "Login"
+              )}
             </Button>
           </form>
         </Form>

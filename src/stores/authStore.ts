@@ -1,13 +1,12 @@
 import { create } from "zustand";
-import { UserSignupData, User } from "@/types/auth.types";
+import { UserSignupData, User, LoginCredentials } from "@/types/auth.types";
 import {
   signupUser,
+  loginUser,
   verifyUserEmail,
   checkAuthStatus,
   logoutUser,
 } from "@/api/auth";
-
-// Define the shape of your auth store state
 
 interface AuthStore {
   user: User | null;
@@ -16,6 +15,7 @@ interface AuthStore {
   isLoading: boolean;
   isCheckingAuth: boolean;
   signup: (userData: UserSignupData) => Promise<void>;
+  login: (credentials: LoginCredentials) => Promise<void>;
   verifyEmail: (email: string | undefined, pin: string) => Promise<void>;
   checkAuth: () => Promise<void>;
   logout: () => Promise<void>;
@@ -44,6 +44,26 @@ export const useAuthStore = create<AuthStore>((set) => ({
     }
   },
 
+  login: async (credentials: LoginCredentials) => {
+    set({ isLoading: true, error: null });
+    try {
+      const data = await loginUser(credentials);
+      set({
+        user: data.user,
+        isAuthenticated: true,
+        isLoading: false,
+        error: null,
+      });
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (error: any) {
+      set({
+        error: error.response?.data?.message || "Error while logging in",
+        isLoading: false,
+      });
+      throw error;
+    }
+  },
+
   verifyEmail: async (email: string | undefined, pin: string) => {
     set({ isLoading: true, error: null });
     try {
@@ -65,8 +85,8 @@ export const useAuthStore = create<AuthStore>((set) => ({
     try {
       const data = await checkAuthStatus();
       set({
-        user: data.user,
-        isAuthenticated: true,
+        user: data?.user || null,
+        isAuthenticated: !!data?.user,
         isCheckingAuth: false,
       });
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -75,6 +95,7 @@ export const useAuthStore = create<AuthStore>((set) => ({
         error: null,
         isCheckingAuth: false,
         isAuthenticated: false,
+        user: null,
       });
     }
   },
