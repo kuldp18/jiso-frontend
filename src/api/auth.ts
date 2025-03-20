@@ -70,3 +70,25 @@ export const logoutUser = async () => {
     throw error;
   }
 };
+
+export const forgotUserPassword = async (email: string) => {
+  try {
+    const response = await api.post("/auth/forgot-password", { email });
+    return response.data;
+  } catch (error) {
+    console.error("Error while sending forgot password request:", error);
+    throw error;
+  }
+};
+
+export const resetUserPassword = async (token: string, newPassword: string) => {
+  try {
+    const response = await api.post(`/auth/reset-password/${token}`, {
+      newPassword,
+    });
+    return response.data;
+  } catch (error) {
+    console.error("Error while resetting password:", error);
+    throw error;
+  }
+};

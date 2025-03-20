@@ -6,6 +6,8 @@ import {
   verifyUserEmail,
   checkAuthStatus,
   logoutUser,
+  forgotUserPassword,
+  resetUserPassword,
 } from "@/api/auth";
 
 interface AuthStore {
@@ -19,6 +21,8 @@ interface AuthStore {
   verifyEmail: (email: string | undefined, pin: string) => Promise<void>;
   checkAuth: () => Promise<void>;
   logout: () => Promise<void>;
+  forgotPassword: (email: string) => Promise<void>;
+  resetPassword: (token: string, password: string) => Promise<void>;
 }
 
 export const useAuthStore = create<AuthStore>((set) => ({
@@ -110,6 +114,43 @@ export const useAuthStore = create<AuthStore>((set) => ({
     } catch (error: any) {
       set({
         error: error.response?.data?.message || "Error while logging out",
+        isLoading: false,
+      });
+      throw error;
+    }
+  },
+
+  forgotPassword: async (email: string) => {
+    set({ isLoading: true, error: null });
+
+    try {
+      const data = await forgotUserPassword(email);
+      set({ isLoading: false });
+      return data;
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (error: any) {
+      set({
+        error:
+          error.response?.data?.message ||
+          "Error while sending forgot password request",
+        isLoading: false,
+      });
+      throw error;
+    }
+  },
+
+  resetPassword: async (token: string, password: string) => {
+    set({ isLoading: true, error: null });
+
+    try {
+      const data = await resetUserPassword(token, password);
+      set({ isLoading: false });
+      return data;
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (error: any) {
+      set({
+        error:
+          error.response?.data?.message || "Error while resetting password",
         isLoading: false,
       });
       throw error;

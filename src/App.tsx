@@ -1,10 +1,12 @@
 import {
   DashboardPage,
+  ForgotPasswordPage,
   GlobalLayout,
   LandingPage,
   LoginPage,
   SignupPage,
   VerifyEmailPage,
+  ResetPasswordPage,
 } from "@/pages";
 
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
@@ -36,6 +38,22 @@ const router = createBrowserRouter([
         element: (
           <RedirectAuthenticated>
             <LoginPage />
+          </RedirectAuthenticated>
+        ),
+      },
+      {
+        path: "forgot-password",
+        element: (
+          <RedirectAuthenticated>
+            <ForgotPasswordPage />
+          </RedirectAuthenticated>
+        ),
+      },
+      {
+        path: "reset-password/:token",
+        element: (
+          <RedirectAuthenticated>
+            <ResetPasswordPage />
           </RedirectAuthenticated>
         ),
       },
