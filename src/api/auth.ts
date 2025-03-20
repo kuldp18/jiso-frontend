@@ -60,3 +60,13 @@ export const checkAuthStatus = async () => {
     throw error;
   }
 };
+
+export const logoutUser = async () => {
+  try {
+    const response = await api.post("/auth/logout");
+    return response.data;
+  } catch (error) {
+    console.error("Error while logging out:", error);
+    throw error;
+  }
+};

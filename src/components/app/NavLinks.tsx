@@ -1,6 +1,7 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { useAuthStore } from "@/stores/authStore";
+import { toast } from "sonner";
 
 const UnauthenticatedNavLinks = ({
   isMobile = false,
@@ -36,6 +37,19 @@ export const AuthenticatedNavLinks = ({
 }) => {
   const classes = isMobile ? "w-full" : "h-9 rounded-none";
 
+  const logout = useAuthStore((state) => state.logout);
+  const navigate = useNavigate();
+
+  const handleLogout = async () => {
+    try {
+      await logout();
+      navigate("/");
+      toast.success(`Logged out successfully`);
+    } catch (error) {
+      toast.error(`Error logging out: ${error}`);
+    }
+  };
+
   return (
     <>
       <Link to="/dashboard">
@@ -48,6 +62,7 @@ export const AuthenticatedNavLinks = ({
         variant="outline"
         size={isMobile ? "default" : "sm"}
         className={classes}
+        onClick={handleLogout}
       >
         Logout
       </Button>

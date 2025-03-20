@@ -1,6 +1,11 @@
 import { create } from "zustand";
 import { UserSignupData, User } from "@/types/auth.types";
-import { signupUser, verifyUserEmail, checkAuthStatus } from "@/api/auth";
+import {
+  signupUser,
+  verifyUserEmail,
+  checkAuthStatus,
+  logoutUser,
+} from "@/api/auth";
 
 // Define the shape of your auth store state
 
@@ -13,6 +18,7 @@ interface AuthStore {
   signup: (userData: UserSignupData) => Promise<void>;
   verifyEmail: (email: string | undefined, pin: string) => Promise<void>;
   checkAuth: () => Promise<void>;
+  logout: () => Promise<void>;
 }
 
 export const useAuthStore = create<AuthStore>((set) => ({
@@ -70,6 +76,22 @@ export const useAuthStore = create<AuthStore>((set) => ({
         isCheckingAuth: false,
         isAuthenticated: false,
       });
+    }
+  },
+
+  logout: async () => {
+    set({ isLoading: true, error: null });
+    try {
+      const data = await logoutUser();
+      set({ user: null, isAuthenticated: false, isLoading: false });
+      return data;
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (error: any) {
+      set({
+        error: error.response?.data?.message || "Error while logging out",
+        isLoading: false,
+      });
+      throw error;
     }
   },
 }));
