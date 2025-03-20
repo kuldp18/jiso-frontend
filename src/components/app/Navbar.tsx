@@ -2,6 +2,7 @@ import { useState, JSX } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { Menu, X, Sun, Moon } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import NavLinks from "@/components/app/NavLinks";
 
 interface NavLinkItem {
   path: string;
@@ -82,16 +83,7 @@ const Navbar = (): JSX.Element => {
           {/* Right (Desktop) */}
           <div className="hidden md:flex items-center gap-3 h-full">
             <ThemeToggle isDarkMode={isDarkMode} toggleTheme={toggleTheme} />
-            <Link to="/login">
-              <Button variant="outline" size="sm" className="h-9 rounded-none">
-                Login
-              </Button>
-            </Link>
-            <Link to="/signup">
-              <Button size="sm" className="h-9 rounded-none">
-                Signup
-              </Button>
-            </Link>
+            <NavLinks />
           </div>
         </div>
       </nav>
@@ -116,14 +108,7 @@ const Navbar = (): JSX.Element => {
                 isLandingPage ? "pt-3" : "pt-0"
               } flex flex-col gap-2`}
             >
-              <Link to="/login">
-                <Button variant="outline" className="w-full h-9">
-                  Login
-                </Button>
-              </Link>
-              <Link to="/signup">
-                <Button className="w-full h-9">Signup</Button>
-              </Link>
+              <NavLinks isMobile />
             </div>
           </nav>
         </aside>
