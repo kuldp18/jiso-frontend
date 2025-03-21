@@ -4,6 +4,7 @@ import LoginPage from "./LoginPage";
 import SignupPage from "./SignupPage";
 import VerifyEmailPage from "./VerifyEmailPage";
 import DashboardPage from "./DashboardPage";
+import DashboardLayout from "./DashboardLayout";
 import ForgotPasswordPage from "./ForgotPasswordPage";
 import ResetPasswordPage from "./ResetPasswordPage";
 
@@ -14,6 +15,7 @@ export {
   SignupPage,
   VerifyEmailPage,
   DashboardPage,
+  DashboardLayout,
   ForgotPasswordPage,
   ResetPasswordPage,
 };

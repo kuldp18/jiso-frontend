@@ -7,6 +7,7 @@ import {
   SignupPage,
   VerifyEmailPage,
   ResetPasswordPage,
+  DashboardLayout,
 } from "@/pages";
 
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
@@ -65,9 +66,15 @@ const router = createBrowserRouter([
         path: "dashboard",
         element: (
           <ProtectedRoute>
-            <DashboardPage />
+            <DashboardLayout />
           </ProtectedRoute>
         ),
+        children: [
+          {
+            element: <DashboardPage />,
+            index: true,
+          },
+        ],
       },
     ],
   },
