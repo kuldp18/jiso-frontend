@@ -21,3 +21,13 @@ export interface User {
   verified?: boolean;
   authenticated?: boolean;
 }
+
+export interface Goal {
+  goal: string;
+  description?: string;
+}
+
+export interface Struggle {
+  struggle: string;
+  severity?: number | string;
+}

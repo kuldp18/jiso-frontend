@@ -1,5 +1,10 @@
 import api from "@/api";
-import { UserSignupData, LoginCredentials } from "@/types/auth.types";
+import {
+  UserSignupData,
+  LoginCredentials,
+  Goal,
+  Struggle,
+} from "@/types/auth.types";
 
 export const signupUser = async (userData: UserSignupData) => {
   const { firstName, lastName, email, password, age, gender } = userData;
@@ -89,6 +94,23 @@ export const resetUserPassword = async (token: string, newPassword: string) => {
     return response.data;
   } catch (error) {
     console.error("Error while resetting password:", error);
+    throw error;
+  }
+};
+
+export const finishUserOnboarding = async (
+  goals: Goal[],
+  struggles: Struggle[]
+) => {
+  try {
+    const response = await api.patch("/context/update", {
+      goals,
+      struggles,
+    });
+
+    return response.data;
+  } catch (error) {
+    console.error("Error while finishing onboarding:", error);
     throw error;
   }
 };

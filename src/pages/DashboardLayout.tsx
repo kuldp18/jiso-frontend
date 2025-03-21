@@ -1,12 +1,17 @@
-import { Sidebar } from "@/components/app";
+import { Sidebar, Onboarding } from "@/components/app";
 import { Outlet } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { Sidebar as SidebarIcon, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useAuthStore } from "@/stores/authStore";
 
 const DashboardLayout = () => {
   const [isMobileView, setIsMobileView] = useState(window.innerWidth < 768);
   const [showMobileSidebar, setShowMobileSidebar] = useState(false);
+  const user = useAuthStore((state) => state.user);
+
+  // Determine if user needs onboarding (You might need to adapt this based on your user object structure)
+  const needsOnboarding = user && !user.authenticated;
 
   useEffect(() => {
     const handleResize = () => {
@@ -39,6 +44,8 @@ const DashboardLayout = () => {
 
   return (
     <div className="flex flex-col min-h-[calc(100vh-64px)]">
+      {needsOnboarding && <Onboarding />}
+
       <div className="flex flex-1 relative">
         {/* Desktop sidebar - always visible on larger screens */}
         {!isMobileView && <Sidebar />}

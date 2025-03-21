@@ -1,6 +1,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
+import { useLocation } from "react-router-dom";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -43,11 +44,16 @@ const VerifyEmail = () => {
   const user = useAuthStore((state) => state.user);
 
   const navigate = useNavigate();
+  const location = useLocation();
 
   async function onSubmit(data: z.infer<typeof FormSchema>) {
     try {
       await verifyEmail(user?.email, data.pin);
-      navigate("/dashboard");
+      // Pass the fromSignup flag when redirecting to dashboard
+      const fromSignup = location.state?.fromSignup === true;
+      navigate("/dashboard", {
+        state: { fromSignup, needsOnboarding: true },
+      });
       toast.success("Email verified successfully!");
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {

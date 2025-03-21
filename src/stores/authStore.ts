@@ -1,5 +1,12 @@
 import { create } from "zustand";
-import { UserSignupData, User, LoginCredentials } from "@/types/auth.types";
+import {
+  UserSignupData,
+  User,
+  LoginCredentials,
+  Goal,
+  Struggle,
+} from "@/types/auth.types";
+
 import {
   signupUser,
   loginUser,
@@ -8,6 +15,7 @@ import {
   logoutUser,
   forgotUserPassword,
   resetUserPassword,
+  finishUserOnboarding,
 } from "@/api/auth";
 
 interface AuthStore {
@@ -23,6 +31,7 @@ interface AuthStore {
   logout: () => Promise<void>;
   forgotPassword: (email: string) => Promise<void>;
   resetPassword: (token: string, password: string) => Promise<void>;
+  onboardUser: (goals: Goal[], struggles: Struggle[]) => Promise<void>;
 }
 
 export const useAuthStore = create<AuthStore>((set) => ({
@@ -151,6 +160,25 @@ export const useAuthStore = create<AuthStore>((set) => ({
       set({
         error:
           error.response?.data?.message || "Error while resetting password",
+        isLoading: false,
+      });
+      throw error;
+    }
+  },
+
+  onboardUser: async (goals: Goal[], struggles: Struggle[]) => {
+    set({ isLoading: true, error: null });
+
+    try {
+      const data = await finishUserOnboarding(goals, struggles);
+      set({ isLoading: false });
+      return data;
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (error: any) {
+      set({
+        error:
+          error.response?.data?.message ||
+          "Error while finishing user onboarding",
         isLoading: false,
       });
       throw error;

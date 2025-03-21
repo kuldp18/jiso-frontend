@@ -73,7 +73,7 @@ const SignupPage = () => {
   async function onSubmit(values: z.infer<typeof signupSchema>) {
     try {
       await signup(values);
-      navigate("/verify-email");
+      navigate("/verify-email", { state: { fromSignup: true } });
     } catch (error) {
       console.log(`Error while signing up: ${error}`);
     }
