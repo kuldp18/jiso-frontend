@@ -7,6 +7,7 @@ import DashboardPage from "./DashboardPage";
 import DashboardLayout from "./DashboardLayout";
 import ForgotPasswordPage from "./ForgotPasswordPage";
 import ResetPasswordPage from "./ResetPasswordPage";
+import ErrorPage from "./ErrorPage";
 
 export {
   GlobalLayout,
@@ -18,4 +19,5 @@ export {
   DashboardLayout,
   ForgotPasswordPage,
   ResetPasswordPage,
+  ErrorPage,
 };

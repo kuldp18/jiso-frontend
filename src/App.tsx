@@ -8,6 +8,7 @@ import {
   VerifyEmailPage,
   ResetPasswordPage,
   DashboardLayout,
+  ErrorPage,
 } from "@/pages";
 
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
@@ -21,6 +22,7 @@ const router = createBrowserRouter([
   {
     path: "/",
     element: <GlobalLayout />,
+    errorElement: <ErrorPage />,
     children: [
       {
         element: <LandingPage />,
