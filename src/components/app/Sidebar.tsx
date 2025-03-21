@@ -7,13 +7,12 @@ import {
   ChevronRight,
   LayoutDashboard,
   Settings,
-  Users,
-  PieChart,
-  Calendar,
   MessagesSquare,
-  FileText,
   HelpCircle,
   X,
+  SmilePlus,
+  NotebookPen,
+  MessageSquarePlus,
 } from "lucide-react";
 import { useAuthStore } from "@/stores/authStore";
 
@@ -93,29 +92,24 @@ const Sidebar = ({ isMobile = false, closeMobileSidebar }: SidebarProps) => {
       label: "Dashboard",
     },
     {
-      to: "/dashboard/analytics",
-      icon: <PieChart size={20} />,
-      label: "Analytics",
+      to: "/dashboard/moods",
+      icon: <SmilePlus size={20} />,
+      label: "Moods",
     },
     {
-      to: "/dashboard/users",
-      icon: <Users size={20} />,
-      label: "Users",
+      to: "/dashboard/journals",
+      icon: <NotebookPen size={20} />,
+      label: "Journals",
     },
     {
-      to: "/dashboard/messages",
+      to: "/dashboard/new-chat",
+      icon: <MessageSquarePlus size={20} />,
+      label: "New Chat",
+    },
+    {
+      to: "/dashboard/chats",
       icon: <MessagesSquare size={20} />,
-      label: "Messages",
-    },
-    {
-      to: "/dashboard/calendar",
-      icon: <Calendar size={20} />,
-      label: "Calendar",
-    },
-    {
-      to: "/dashboard/documents",
-      icon: <FileText size={20} />,
-      label: "Documents",
+      label: "Chats",
     },
     {
       to: "/dashboard/settings",

@@ -9,6 +9,10 @@ import {
   ResetPasswordPage,
   DashboardLayout,
   ErrorPage,
+  MoodsPage,
+  JournalsPage,
+  NewChatPage,
+  ChatsPage,
 } from "@/pages";
 
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
@@ -75,6 +79,24 @@ const router = createBrowserRouter([
           {
             element: <DashboardPage />,
             index: true,
+          },
+
+          {
+            path: "moods",
+            element: <MoodsPage />,
+          },
+
+          {
+            path: "journals",
+            element: <JournalsPage />,
+          },
+          {
+            path: "new-chat",
+            element: <NewChatPage />,
+          },
+          {
+            path: "chats",
+            element: <ChatsPage />,
           },
         ],
       },
