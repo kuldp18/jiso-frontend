@@ -22,6 +22,15 @@ interface SidebarLinkProps {
   label: string;
   isCollapsed: boolean;
 }
+
+function capitalizeFullName(fullName: string | undefined): string {
+  if (!fullName) return "User";
+  return fullName
+    .split(" ")
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+    .join(" ");
+}
+
 const SidebarLink = ({ to, icon, label, isCollapsed }: SidebarLinkProps) => {
   const location = useLocation();
   const isActive = location.pathname === to;
@@ -159,7 +168,7 @@ const Sidebar = ({ isMobile = false, closeMobileSidebar }: SidebarProps) => {
           {!isCollapsed && (
             <div className="min-w-0 flex-1">
               <span className="font-medium text-sm block truncate">
-                {user?.name || "User"}
+                {capitalizeFullName(user?.name) || "User"}
               </span>
               <span className="text-xs text-sidebar-foreground/70 block truncate">
                 {user?.email || "user@example.com"}
