@@ -9,9 +9,10 @@ import ForgotPasswordPage from "./ForgotPasswordPage";
 import ResetPasswordPage from "./ResetPasswordPage";
 import ErrorPage from "./ErrorPage";
 import JournalsPage from "./JournalsPage";
-import MoodsPage from "./MoodsPage";
+import NewMoodPage from "./NewMoodPage";
 import ChatsPage from "./ChatsPage";
 import NewChatPage from "./NewChatPage";
+import MoodsPage from "./MoodsPage";
 
 export {
   GlobalLayout,
@@ -25,7 +26,8 @@ export {
   ResetPasswordPage,
   ErrorPage,
   JournalsPage,
-  MoodsPage,
+  NewMoodPage,
   ChatsPage,
   NewChatPage,
+  MoodsPage,
 };
