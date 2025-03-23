@@ -70,7 +70,7 @@ const MoodsPage = () => {
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <h1 className="text-2xl font-bold">Your Mood Entries</h1>
         <Link to="/dashboard/moods/create">
-          <Button className="w-full sm:w-auto">Create New Mood</Button>
+          <Button className="w-full sm:w-auto">New Entry</Button>
         </Link>
       </div>
 
