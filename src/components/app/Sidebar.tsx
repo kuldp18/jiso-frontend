@@ -137,7 +137,7 @@ const Sidebar = ({ isMobile = false, closeMobileSidebar }: SidebarProps) => {
       ref={sidebarRef}
       className={cn(
         "bg-sidebar border-r border-sidebar-border transition-all duration-300 flex flex-col",
-        isMobile ? "h-full" : "h-[calc(100vh-64px)]", // Adjusted to match navbar exactly
+        isMobile ? "h-full" : "sticky top-[64px] h-[calc(100vh-64px)]", // Added sticky positioning
         isCollapsed ? "w-[60px]" : "w-[240px]"
       )}
     >
