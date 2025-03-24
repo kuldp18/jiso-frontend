@@ -13,6 +13,7 @@ import NewMoodPage from "./NewMoodPage";
 import ChatsPage from "./ChatsPage";
 import NewChatPage from "./NewChatPage";
 import MoodsPage from "./MoodsPage";
+import NewJournalPage from "./NewJournalPage";
 
 export {
   GlobalLayout,
@@ -30,4 +31,5 @@ export {
   ChatsPage,
   NewChatPage,
   MoodsPage,
+  NewJournalPage,
 };
