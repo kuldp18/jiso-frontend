@@ -4,6 +4,7 @@ import RedirectAuthenticated from "./RedirectAuthenticated";
 import Sidebar from "./Sidebar";
 import Onboarding from "./Onboarding";
 import MoodCard from "./MoodCard";
+import JournalCard from "./JournalCard";
 
 export {
   Navbar,
@@ -12,4 +13,5 @@ export {
   Sidebar,
   Onboarding,
   MoodCard,
+  JournalCard,
 };
