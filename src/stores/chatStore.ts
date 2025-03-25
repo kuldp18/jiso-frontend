@@ -1,18 +1,21 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { create } from "zustand";
 import { createNewChat, fetchUserChat, sendChatMessage } from "@/api/chat";
+import { Chat } from "@/types/chat.types";
 
 interface ChatStore {
   currentChatId: string | null;
+  chat: Chat | null;
   error: string | null;
   isLoading: boolean;
   createChat: () => Promise<void>;
-  fetchChat: (chatId: string) => Promise<void>;
-  sendMessage: (chatId: string, message: string) => Promise<void>;
+  fetchChat: (chatId: string) => Promise<Chat>;
+  sendMessage: (chatId: string, message: string) => Promise<string>;
 }
 
 export const ChatStore = create<ChatStore>((set) => ({
   currentChatId: null,
+  chat: null,
   error: null,
   isLoading: false,
 
@@ -40,13 +43,18 @@ export const ChatStore = create<ChatStore>((set) => ({
 
     try {
       const data = await fetchUserChat(chatId);
-      set({ currentChatId: chatId, isLoading: false });
+      set({
+        currentChatId: chatId,
+        chat: data.chat,
+        isLoading: false,
+      });
       return data.chat;
     } catch (error: any) {
       set({
         error: error.response?.data?.message || "Error while fetching chat",
         isLoading: false,
         currentChatId: null,
+        chat: null,
       });
       throw error;
     }
@@ -57,7 +65,27 @@ export const ChatStore = create<ChatStore>((set) => ({
 
     try {
       const data = await sendChatMessage(chatId, message);
-      set({ isLoading: false });
+
+      // Update the chat state with the new message
+      set((state) => {
+        if (state.chat && state.currentChatId === chatId) {
+          const updatedMessages = [
+            ...(state.chat.messages || []),
+            { sender: "user" as const, content: message },
+            { sender: "ai" as const, content: data.response },
+          ];
+
+          return {
+            isLoading: false,
+            chat: {
+              ...state.chat,
+              messages: updatedMessages,
+            },
+          };
+        }
+        return { isLoading: false };
+      });
+
       return data.response; // ai message
     } catch (error: any) {
       set({

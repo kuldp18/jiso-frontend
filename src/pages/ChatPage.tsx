@@ -1,6 +1,7 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { useState, useRef, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
-import { Loader, Send } from "lucide-react";
+import { useParams, useNavigate } from "react-router-dom";
+import { Loader, Send, ArrowLeft } from "lucide-react";
 import { toast } from "sonner";
 
 import { ChatMessageList } from "@/components/ui/chat/chat-message-list";
@@ -12,8 +13,9 @@ import {
 import { ChatInput } from "@/components/ui/chat/chat-input";
 import { Button } from "@/components/ui/button";
 import { ChatStore } from "@/stores/chatStore";
+import { Chat, ChatMessage as ApiChatMessage } from "@/types/chat.types";
 
-// Message type definition
+// Message type definition for UI rendering
 interface Message {
   id: string;
   content: string;
@@ -21,20 +23,19 @@ interface Message {
   isLoading?: boolean;
 }
 
-const NewChatPage = () => {
-  const [messages, setMessages] = useState<Message[]>([
-    {
-      id: "welcome",
-      content: "Hi there! How can I help you today?",
-      role: "assistant",
-    },
-  ]);
+const ChatPage = () => {
+  const { chatId } = useParams<{ chatId: string }>();
+  const navigate = useNavigate();
+
+  const [messages, setMessages] = useState<Message[]>([]);
   const [userInput, setUserInput] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [chatTitle, setChatTitle] = useState("Chat");
 
-  const createChat = ChatStore((state) => state.createChat);
+  const fetchChat = ChatStore((state) => state.fetchChat);
   const sendMessage = ChatStore((state) => state.sendMessage);
-  const navigate = useNavigate();
+  const isLoading = ChatStore((state) => state.isLoading);
+
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -63,14 +64,46 @@ const NewChatPage = () => {
     return () => window.removeEventListener("resize", updateContainerHeight);
   }, []);
 
+  // Fetch chat data when component mounts or chatId changes
+  useEffect(() => {
+    if (!chatId) return;
+
+    const loadChatData = async () => {
+      try {
+        await fetchChat(chatId);
+        // Access the chat data directly from the store
+        const chatData = ChatStore.getState().chat;
+
+        if (chatData) {
+          // Format messages for UI
+          const formattedMessages: Message[] = chatData.messages.map(
+            (msg: ApiChatMessage, index: number) => ({
+              id: `${msg.sender}-${index}`,
+              content: msg.content,
+              role: msg.sender === "user" ? "user" : "assistant",
+            })
+          );
+
+          setMessages(formattedMessages);
+          setChatTitle(chatData.title || "Chat");
+        }
+      } catch (error) {
+        toast.error("Failed to load chat. Please try again.");
+        navigate("/dashboard/chats/new");
+      }
+    };
+
+    loadChatData();
+  }, [chatId, fetchChat, navigate]);
+
   const handleSubmit = async () => {
-    if (!userInput.trim()) return;
+    if (!userInput.trim() || !chatId) return;
 
     const trimmedInput = userInput.trim();
     const userMessageId = `user-${Date.now()}`;
     const assistantMessageId = `assistant-${Date.now()}`;
 
-    // Add user message to the local state
+    // Add user message to the UI
     setMessages((prev) => [
       ...prev,
       { id: userMessageId, content: trimmedInput, role: "user" },
@@ -80,16 +113,6 @@ const NewChatPage = () => {
     setIsSubmitting(true);
 
     try {
-      // Create a new chat with the backend
-      await createChat();
-
-      // Get the newly created chat ID from the store
-      const newChatId = ChatStore.getState().currentChatId;
-
-      if (!newChatId) {
-        throw new Error("Failed to create a new chat");
-      }
-
       // Add temporary loading message
       setMessages((prev) => [
         ...prev,
@@ -101,14 +124,20 @@ const NewChatPage = () => {
         },
       ]);
 
-      // Send the initial message
-      await sendMessage(newChatId, trimmedInput);
+      // Send the message to the backend
+      const aiResponse = await sendMessage(chatId, trimmedInput);
 
-      // Navigate to the new chat page
-      navigate(`/dashboard/chats/${newChatId}`);
+      // Update the assistant message with the actual response
+      setMessages((prev) =>
+        prev.map((msg) =>
+          msg.id === assistantMessageId
+            ? { ...msg, content: aiResponse ?? "", isLoading: false }
+            : msg
+        )
+      );
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (error) {
-      toast.error("Failed to create new chat. Please try again.");
+      toast.error("Failed to send message. Please try again.");
       // Remove the loading message
       setMessages((prev) =>
         prev.filter((msg) => msg.id !== assistantMessageId)
@@ -126,39 +155,57 @@ const NewChatPage = () => {
     }
   };
 
+  const handleBackToChats = () => {
+    navigate("/dashboard/chats");
+  };
+
   return (
     <div
       ref={containerRef}
       className="flex flex-col h-full overflow-hidden rounded-lg border border-border"
     >
       {/* Header */}
-      <div className="border-b border-border p-4">
-        <h1 className="text-xl font-semibold">New Chat</h1>
-        <p className="text-sm text-muted-foreground">
-          Start a new chat with Ana
-        </p>
+      <div className="border-b border-border p-4 flex items-center">
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={handleBackToChats}
+          className="mr-2"
+        >
+          <ArrowLeft className="h-5 w-5" />
+        </Button>
+        <div>
+          <h1 className="text-xl font-semibold">{chatTitle}</h1>
+          <p className="text-sm text-muted-foreground">Chat with Ana</p>
+        </div>
       </div>
 
       {/* Chat Messages */}
       <div className="flex-1 overflow-hidden">
-        <ChatMessageList smooth>
-          {messages.map((message) => (
-            <ChatBubble
-              key={message.id}
-              variant={message.role === "user" ? "sent" : "received"}
-            >
-              {message.role === "assistant" && (
-                <ChatBubbleAvatar fallback="AI" />
-              )}
-              <ChatBubbleMessage
+        {isLoading && messages.length === 0 ? (
+          <div className="flex items-center justify-center h-full">
+            <Loader className="h-8 w-8 animate-spin text-primary" />
+          </div>
+        ) : (
+          <ChatMessageList smooth>
+            {messages.map((message) => (
+              <ChatBubble
+                key={message.id}
                 variant={message.role === "user" ? "sent" : "received"}
-                isLoading={message.isLoading}
               >
-                {message.content}
-              </ChatBubbleMessage>
-            </ChatBubble>
-          ))}
-        </ChatMessageList>
+                {message.role === "assistant" && (
+                  <ChatBubbleAvatar fallback="AI" />
+                )}
+                <ChatBubbleMessage
+                  variant={message.role === "user" ? "sent" : "received"}
+                  isLoading={message.isLoading}
+                >
+                  {message.content}
+                </ChatBubbleMessage>
+              </ChatBubble>
+            ))}
+          </ChatMessageList>
+        )}
       </div>
 
       {/* Input Area */}
@@ -198,4 +245,4 @@ const NewChatPage = () => {
   );
 };
 
-export default NewChatPage;
+export default ChatPage;

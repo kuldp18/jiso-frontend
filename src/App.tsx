@@ -15,6 +15,7 @@ import {
   ChatsPage,
   NewMoodPage,
   NewJournalPage,
+  ChatPage,
 } from "@/pages";
 
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
@@ -107,6 +108,10 @@ const router = createBrowserRouter([
           {
             path: "chats",
             element: <ChatsPage />,
+          },
+          {
+            path: "chats/:chatId",
+            element: <ChatPage />,
           },
         ],
       },
