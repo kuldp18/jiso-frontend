@@ -3,6 +3,11 @@ export interface NewJournalEntry {
   emotions?: string[];
   tags?: string[];
 }
+export interface EditJournalEntry {
+  entry?: string;
+  emotions?: string[];
+  tags?: string[];
+}
 
 export interface JournalEntry extends NewJournalEntry {
   _id: string;

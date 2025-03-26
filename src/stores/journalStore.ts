@@ -1,7 +1,16 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { create } from "zustand";
-import { createNewJournalEntry, getJournalEntries } from "@/api/journal";
-import { JournalEntry, NewJournalEntry } from "@/types/journal.types";
+import {
+  createNewJournalEntry,
+  deleteJournalEntry,
+  editJournalEntry,
+  getJournalEntries,
+} from "@/api/journal";
+import {
+  EditJournalEntry,
+  JournalEntry,
+  NewJournalEntry,
+} from "@/types/journal.types";
 
 interface JournalStore {
   journalEntries: JournalEntry[];
@@ -9,6 +18,7 @@ interface JournalStore {
   error: string | null;
   createJournalEntry: (entry: NewJournalEntry) => Promise<void>;
   fetchJournalEntries: () => Promise<void>;
+  editJournal: (journalId: string, newEntry: EditJournalEntry) => Promise<void>;
 }
 
 export const useJournalStore = create<JournalStore>((set) => ({
@@ -45,6 +55,46 @@ export const useJournalStore = create<JournalStore>((set) => ({
         error:
           error.response?.data?.message ||
           "Error while fetching journal entries",
+        isLoading: false,
+      });
+    }
+  },
+
+  editJournal: async (journalId: string, newEntry: EditJournalEntry) => {
+    set({ isLoading: true, error: null });
+
+    try {
+      const data = await editJournalEntry(journalId, newEntry);
+      set((state) => ({
+        journalEntries: state.journalEntries.map((entry) =>
+          entry._id === journalId ? { ...entry, ...data.journalEntry } : entry
+        ),
+        isLoading: false,
+      }));
+    } catch (error: any) {
+      set({
+        error:
+          error.response?.data?.message || "Error while editing journal entry",
+        isLoading: false,
+      });
+    }
+  },
+
+  deleteJournal: async (journalId: string) => {
+    set({ isLoading: true, error: null });
+
+    try {
+      await deleteJournalEntry(journalId);
+      set((state) => ({
+        journalEntries: state.journalEntries.filter(
+          (entry) => entry._id !== journalId
+        ),
+        isLoading: false,
+      }));
+    } catch (error: any) {
+      set({
+        error:
+          error.response?.data?.message || "Error while deleting journal entry",
         isLoading: false,
       });
     }

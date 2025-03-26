@@ -1,5 +1,5 @@
 import api from "@/api";
-import { NewJournalEntry } from "@/types/journal.types";
+import { EditJournalEntry, NewJournalEntry } from "@/types/journal.types";
 
 export const createNewJournalEntry = async (entry: NewJournalEntry) => {
   try {
@@ -17,6 +17,29 @@ export const getJournalEntries = async () => {
     return response.data;
   } catch (error) {
     console.error("Error while fetching journal entries:", error);
+    throw error;
+  }
+};
+
+export const deleteJournalEntry = async (journalId: string) => {
+  try {
+    const response = await api.delete(`/journals/${journalId}`);
+    return response.data;
+  } catch (error) {
+    console.error("Error while deleting journal entry:", error);
+    throw error;
+  }
+};
+
+export const editJournalEntry = async (
+  journalId: string,
+  newEntry: EditJournalEntry
+) => {
+  try {
+    const response = await api.patch(`/journals/${journalId}`, newEntry);
+    return response.data;
+  } catch (error) {
+    console.error("Error while editing journal entry:", error);
     throw error;
   }
 };
