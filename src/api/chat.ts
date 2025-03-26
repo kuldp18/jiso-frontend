@@ -20,6 +20,16 @@ export const fetchUserChat = async (chatId: string) => {
   }
 };
 
+export const fetchAllUserChats = async () => {
+  try {
+    const response = await api.get("/chats");
+    return response.data;
+  } catch (error) {
+    console.error("Error while fetching all chats:", error);
+    throw error;
+  }
+};
+
 export const sendChatMessage = async (chatId: string, message: string) => {
   try {
     const response = await api.post(`/chats/${chatId}/send`, {

@@ -1,6 +1,11 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { create } from "zustand";
-import { createNewChat, fetchUserChat, sendChatMessage } from "@/api/chat";
+import {
+  createNewChat,
+  fetchAllUserChats,
+  fetchUserChat,
+  sendChatMessage,
+} from "@/api/chat";
 import { Chat } from "@/types/chat.types";
 
 interface ChatStore {
@@ -11,6 +16,7 @@ interface ChatStore {
   createChat: () => Promise<void>;
   fetchChat: (chatId: string) => Promise<Chat>;
   sendMessage: (chatId: string, message: string) => Promise<string>;
+  fetchAllChats: () => Promise<Chat[]>;
 }
 
 export const ChatStore = create<ChatStore>((set) => ({
@@ -52,6 +58,29 @@ export const ChatStore = create<ChatStore>((set) => ({
     } catch (error: any) {
       set({
         error: error.response?.data?.message || "Error while fetching chat",
+        isLoading: false,
+        currentChatId: null,
+        chat: null,
+      });
+      throw error;
+    }
+  },
+
+  fetchAllChats: async () => {
+    set({ isLoading: true, error: null });
+
+    try {
+      const data = await fetchAllUserChats();
+      set({
+        currentChatId: null,
+        chat: null,
+        isLoading: false,
+      });
+      return data.chats;
+    } catch (error: any) {
+      set({
+        error:
+          error.response?.data?.message || "Error while fetching all chats",
         isLoading: false,
         currentChatId: null,
         chat: null,
