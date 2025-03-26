@@ -5,7 +5,6 @@ import {
   MessageSquare,
   Loader,
   Search,
-  Calendar,
   Clock,
   ArrowRight,
   Trash2,
@@ -29,7 +28,6 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-  AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { ChatStore } from "@/stores/chatStore";
 import { Chat } from "@/types/chat.types";
@@ -215,7 +213,7 @@ const ChatsPage = () => {
               className="block group"
             >
               <Card className="h-full transition-all duration-200 hover:shadow-md hover:border-primary/50 relative">
-                <div className="absolute top-2 right-2 z-10 opacity-0 group-hover:opacity-100 transition-opacity">
+                <div className="absolute top-4 right-4 z-10 opacity-0 group-hover:opacity-100 transition-opacity">
                   <Button
                     variant="ghost"
                     size="icon"
@@ -230,10 +228,6 @@ const ChatsPage = () => {
                   <CardTitle className="flex justify-between items-start">
                     <span className="line-clamp-1">
                       {chat.title || "Untitled Chat"}
-                    </span>
-                    <span className="text-xs text-muted-foreground flex items-center gap-1 flex-shrink-0 mr-8">
-                      <Calendar className="h-3 w-3" />
-                      {formatDate(chat.createdAt)}
                     </span>
                   </CardTitle>
                   <CardDescription className="line-clamp-1">
