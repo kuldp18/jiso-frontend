@@ -36,8 +36,8 @@ const Navbar = (): JSX.Element => {
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border bg-background/80 backdrop-blur-sm">
-      <nav className="mx-auto max-w-screen-xl px-3 sm:px-4">
-        <div className="relative flex items-center justify-between h-16 w-full">
+      <nav className="mx-auto px-3 sm:px-4">
+        <div className="relative flex items-center justify-between h-16 w-full px-2">
           {/* Left - Logo */}
           <div className="flex items-center h-full">
             <Link
