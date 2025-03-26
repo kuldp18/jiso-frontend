@@ -42,3 +42,13 @@ export const sendChatMessage = async (chatId: string, message: string) => {
     throw error;
   }
 };
+
+export const deleteUserChat = async (chatId: string) => {
+  try {
+    const response = await api.delete(`/chats/${chatId}`);
+    return response.data;
+  } catch (error) {
+    console.error("Error while deleting chat:", error);
+    throw error;
+  }
+};

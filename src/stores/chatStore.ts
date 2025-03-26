@@ -2,6 +2,7 @@
 import { create } from "zustand";
 import {
   createNewChat,
+  deleteUserChat,
   fetchAllUserChats,
   fetchUserChat,
   sendChatMessage,
@@ -17,6 +18,7 @@ interface ChatStore {
   fetchChat: (chatId: string) => Promise<Chat>;
   sendMessage: (chatId: string, message: string) => Promise<string>;
   fetchAllChats: () => Promise<Chat[]>;
+  deleteChat: (chatId: string) => Promise<void>;
 }
 
 export const ChatStore = create<ChatStore>((set) => ({
@@ -120,6 +122,27 @@ export const ChatStore = create<ChatStore>((set) => ({
       set({
         error: error.response?.data?.message || "Error while sending message",
         isLoading: false,
+      });
+      throw error;
+    }
+  },
+
+  deleteChat: async (chatId: string) => {
+    set({ isLoading: true, error: null });
+
+    try {
+      await deleteUserChat(chatId);
+      set({
+        currentChatId: null,
+        chat: null,
+        isLoading: false,
+      });
+    } catch (error: any) {
+      set({
+        error: error.response?.data?.message || "Error while deleting chat",
+        isLoading: false,
+        currentChatId: null,
+        chat: null,
       });
       throw error;
     }
