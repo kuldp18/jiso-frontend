@@ -32,7 +32,7 @@ import {
 import { ChatStore } from "@/stores/chatStore";
 import { Chat } from "@/types/chat.types";
 import { toast } from "sonner";
-import { format, formatDistanceToNow } from "date-fns";
+import { formatDistanceToNow } from "date-fns";
 import { cn } from "@/lib/utils";
 
 const ChatsPage = () => {
@@ -93,25 +93,6 @@ const ChatsPage = () => {
     return message.content.length > 120
       ? `${message.content.substring(0, 120)}...`
       : message.content;
-  };
-
-  // Format date for display
-  const formatDate = (dateString: string) => {
-    try {
-      const date = new Date(dateString);
-      const now = new Date();
-      const diffDays = Math.floor(
-        (now.getTime() - date.getTime()) / (1000 * 60 * 60 * 24)
-      );
-
-      if (diffDays < 7) {
-        return formatDistanceToNow(date, { addSuffix: true });
-      } else {
-        return format(date, "MMM d, yyyy");
-      }
-    } catch (e) {
-      return "Unknown date";
-    }
   };
 
   const handleNewChat = () => {
