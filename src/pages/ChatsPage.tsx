@@ -8,6 +8,7 @@ import {
   Calendar,
   Clock,
   ArrowRight,
+  Trash2,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -19,6 +20,17 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { ChatStore } from "@/stores/chatStore";
 import { Chat } from "@/types/chat.types";
 import { toast } from "sonner";
@@ -30,9 +42,12 @@ const ChatsPage = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [filteredChats, setFilteredChats] = useState<Chat[]>([]);
+  const [chatToDelete, setChatToDelete] = useState<string | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
   const navigate = useNavigate();
 
   const fetchAllChats = ChatStore((state) => state.fetchAllChats);
+  const deleteChat = ChatStore((state) => state.deleteChat);
 
   useEffect(() => {
     const loadChats = async () => {
@@ -103,6 +118,27 @@ const ChatsPage = () => {
 
   const handleNewChat = () => {
     navigate("/dashboard/new-chat");
+  };
+
+  const handleDeleteChat = async (chatId: string) => {
+    setIsDeleting(true);
+    try {
+      await deleteChat(chatId);
+      setChats((prevChats) => prevChats.filter((chat) => chat._id !== chatId));
+      toast.success("Chat deleted successfully");
+    } catch (error) {
+      toast.error("Failed to delete chat. Please try again.");
+    } finally {
+      setIsDeleting(false);
+      setChatToDelete(null);
+    }
+  };
+
+  // Prevent navigation when clicking on delete button
+  const handleDeleteClick = (e: React.MouseEvent, chatId: string) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setChatToDelete(chatId);
   };
 
   return (
@@ -178,13 +214,24 @@ const ChatsPage = () => {
               key={chat._id}
               className="block group"
             >
-              <Card className="h-full transition-all duration-200 hover:shadow-md hover:border-primary/50">
+              <Card className="h-full transition-all duration-200 hover:shadow-md hover:border-primary/50 relative">
+                <div className="absolute top-2 right-2 z-10 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-8 w-8 text-muted-foreground hover:bg-destructive/10"
+                    onClick={(e) => handleDeleteClick(e, chat._id)}
+                  >
+                    <Trash2 size={16} />
+                  </Button>
+                </div>
+
                 <CardHeader className="pb-2">
                   <CardTitle className="flex justify-between items-start">
                     <span className="line-clamp-1">
                       {chat.title || "Untitled Chat"}
                     </span>
-                    <span className="text-xs text-muted-foreground flex items-center gap-1 flex-shrink-0">
+                    <span className="text-xs text-muted-foreground flex items-center gap-1 flex-shrink-0 mr-8">
                       <Calendar className="h-3 w-3" />
                       {formatDate(chat.createdAt)}
                     </span>
@@ -239,6 +286,38 @@ const ChatsPage = () => {
             </Button>
           </div>
         )}
+
+      {/* Delete Confirmation Dialog */}
+      <AlertDialog
+        open={!!chatToDelete}
+        onOpenChange={(open) => !open && setChatToDelete(null)}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Conversation</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to delete this conversation? This action
+              cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={isDeleting}>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => chatToDelete && handleDeleteChat(chatToDelete)}
+              disabled={isDeleting}
+            >
+              {isDeleting ? (
+                <>
+                  <Loader className="mr-2 h-4 w-4 animate-spin" />
+                  Deleting...
+                </>
+              ) : (
+                "Delete"
+              )}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };
