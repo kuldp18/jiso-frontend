@@ -20,3 +20,29 @@ export const getMoodEntries = async () => {
     throw error;
   }
 };
+
+export const deleteMoodEntry = async (moodId: string) => {
+  try {
+    const response = await api.delete(`/moods/${moodId}`);
+    return response.data;
+  } catch (error) {
+    console.error("Error while deleting mood entry:", error);
+    throw error;
+  }
+};
+
+export const editMoodEntry = async (
+  moodId: string,
+  newEntry: {
+    emotions?: string[];
+    description?: string;
+  }
+) => {
+  try {
+    const response = await api.patch(`/moods/${moodId}`, newEntry);
+    return response.data;
+  } catch (error) {
+    console.error("Error while editing mood entry:", error);
+    throw error;
+  }
+};
