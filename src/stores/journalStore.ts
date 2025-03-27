@@ -19,6 +19,7 @@ interface JournalStore {
   createJournalEntry: (entry: NewJournalEntry) => Promise<void>;
   fetchJournalEntries: () => Promise<void>;
   editJournal: (journalId: string, newEntry: EditJournalEntry) => Promise<void>;
+  deleteJournal: (journalId: string) => Promise<void>;
 }
 
 export const useJournalStore = create<JournalStore>((set) => ({
@@ -51,12 +52,20 @@ export const useJournalStore = create<JournalStore>((set) => ({
       const data = await getJournalEntries();
       set({ journalEntries: data.entries, isLoading: false });
     } catch (error: any) {
-      set({
-        error:
-          error.response?.data?.message ||
-          "Error while fetching journal entries",
-        isLoading: false,
-      });
+      if (error.response?.status === 404) {
+        set({
+          journalEntries: [],
+          isLoading: false,
+          error: null,
+        });
+      } else {
+        set({
+          error:
+            error.response?.data?.message ||
+            "Error while fetching journal entries",
+          isLoading: false,
+        });
+      }
     }
   },
 
