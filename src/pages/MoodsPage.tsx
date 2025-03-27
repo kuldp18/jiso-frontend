@@ -65,6 +65,9 @@ const MoodsPage = () => {
     setSelectedDate(undefined);
   };
 
+  // Check if there are actual server errors (not just 404 no moods found)
+  const hasServerError = error && error !== "No mood entries found";
+
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
@@ -74,49 +77,53 @@ const MoodsPage = () => {
         </Link>
       </div>
 
-      {/* Search and filter controls */}
-      <div className="flex flex-col sm:flex-row gap-3">
-        <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <Input
-            placeholder="Search emotions or descriptions..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-9"
-          />
-        </div>
+      {/* Only show search and filters if there are entries */}
+      {moodEntries.length > 0 && (
+        <div className="flex flex-col sm:flex-row gap-3">
+          <div className="relative flex-1">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Input
+              placeholder="Search emotions or descriptions..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-9"
+            />
+          </div>
 
-        <div className="flex gap-2">
-          <Popover>
-            <PopoverTrigger asChild>
-              <Button
-                variant={selectedDate ? "default" : "outline"}
-                className={cn(
-                  "justify-start text-left font-normal",
-                  !selectedDate && "text-muted-foreground"
-                )}
-              >
-                <CalendarIcon className="mr-2 h-4 w-4" />
-                {selectedDate ? format(selectedDate, "PPP") : "Filter by date"}
+          <div className="flex gap-2">
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button
+                  variant={selectedDate ? "default" : "outline"}
+                  className={cn(
+                    "justify-start text-left font-normal",
+                    !selectedDate && "text-muted-foreground"
+                  )}
+                >
+                  <CalendarIcon className="mr-2 h-4 w-4" />
+                  {selectedDate
+                    ? format(selectedDate, "PPP")
+                    : "Filter by date"}
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-0" align="end">
+                <Calendar
+                  mode="single"
+                  selected={selectedDate}
+                  onSelect={setSelectedDate}
+                  initialFocus
+                />
+              </PopoverContent>
+            </Popover>
+
+            {(searchQuery || selectedDate) && (
+              <Button variant="ghost" onClick={clearFilters}>
+                Clear filters
               </Button>
-            </PopoverTrigger>
-            <PopoverContent className="w-auto p-0" align="end">
-              <Calendar
-                mode="single"
-                selected={selectedDate}
-                onSelect={setSelectedDate}
-                initialFocus
-              />
-            </PopoverContent>
-          </Popover>
-
-          {(searchQuery || selectedDate) && (
-            <Button variant="ghost" onClick={clearFilters}>
-              Clear filters
-            </Button>
-          )}
+            )}
+          </div>
         </div>
-      </div>
+      )}
 
       {/* Loading state */}
       {isLoading && (
@@ -128,8 +135,8 @@ const MoodsPage = () => {
         </div>
       )}
 
-      {/* Error state */}
-      {error && !isLoading && (
+      {/* Actual server error state (not just empty moods) */}
+      {hasServerError && !isLoading && (
         <div className="bg-destructive/10 p-4 rounded-lg text-center">
           <p className="text-destructive">Failed to load mood entries</p>
           <Button
@@ -142,36 +149,41 @@ const MoodsPage = () => {
         </div>
       )}
 
-      {/* Empty state */}
-      {!isLoading && !error && filteredEntries.length === 0 && (
-        <div className="text-center py-10 border border-dashed rounded-lg">
-          {moodEntries.length === 0 ? (
-            <>
-              <p className="text-muted-foreground mb-4">
-                You haven't logged any moods yet
-              </p>
-              <Link to="/dashboard/moods/create">
-                <Button>Log Your First Mood</Button>
-              </Link>
-            </>
-          ) : (
-            <>
-              <p className="text-muted-foreground">
-                No entries match your filters
-              </p>
-              <Button variant="link" onClick={clearFilters} className="mt-2">
-                Clear all filters
-              </Button>
-            </>
-          )}
+      {/* Empty state - no moods created yet */}
+      {!isLoading && !hasServerError && moodEntries.length === 0 && (
+        <div className="text-center py-12 border border-dashed rounded-lg flex flex-col items-center">
+          <h3 className="text-lg font-medium mb-2">No mood entries yet</h3>
+          <p className="text-muted-foreground mb-6 max-w-md">
+            Start tracking your emotions by creating your first mood entry. It's
+            a great way to understand your emotional patterns.
+          </p>
+          <Link to="/dashboard/moods/create">
+            <Button size="lg">Create Your First Mood Entry</Button>
+          </Link>
         </div>
       )}
 
+      {/* No results from filters */}
+      {!isLoading &&
+        !hasServerError &&
+        moodEntries.length > 0 &&
+        filteredEntries.length === 0 && (
+          <div className="text-center py-10 border border-dashed rounded-lg">
+            <p className="text-muted-foreground">
+              No entries match your filters
+            </p>
+            <Button variant="link" onClick={clearFilters} className="mt-2">
+              Clear all filters
+            </Button>
+          </div>
+        )}
+
       {/* Mood entries grid - responsive for different screen sizes */}
-      {!isLoading && !error && filteredEntries.length > 0 && (
+      {!isLoading && !hasServerError && filteredEntries.length > 0 && (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
           {filteredEntries.map((entry) => (
             <MoodCard
+              id={entry._id || ""}
               key={entry._id}
               date={entry.createdAt || "Unknown date"}
               emotions={entry.emotions}

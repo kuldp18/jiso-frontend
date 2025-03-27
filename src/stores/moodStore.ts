@@ -53,16 +53,31 @@ export const useMoodStore = create<MoodStore>((set) => ({
 
     try {
       const data = await getMoodEntries();
-      set({ moodEntries: data.entries, isLoading: false });
-    } catch (error: any) {
+
       set({
-        error:
-          error.response?.data?.message || "Error while fetching mood entries",
+        moodEntries: data.entries || [],
         isLoading: false,
+        error: null,
       });
+    } catch (error: any) {
+      if (error.response?.status === 404) {
+        set({
+          moodEntries: [],
+          isLoading: false,
+          error: null, // Clear any errors since this is an expected state
+        });
+      } else {
+        // This is an actual server error
+        set({
+          moodEntries: [],
+          error:
+            error.response?.data?.message ||
+            "Error while fetching mood entries",
+          isLoading: false,
+        });
+      }
     }
   },
-
   deleteMood: async (moodId: string) => {
     set({ isLoading: true, error: null });
 
