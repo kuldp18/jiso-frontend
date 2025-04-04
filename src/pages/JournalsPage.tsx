@@ -211,6 +211,7 @@ const JournalsPage = () => {
                 id={entry._id}
                 entry={entry.entry}
                 createdAt={entry.createdAt}
+                updatedAt={entry.updatedAt}
                 emotions={entry.emotions}
                 tags={entry.tags}
                 onFilterByEmotion={handleFilterByEmotion}

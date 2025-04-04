@@ -31,18 +31,23 @@ import {
   HeartIcon,
   Loader2,
   Trash2,
+  Edit,
+  X,
 } from "lucide-react";
-import { format, parseISO, isValid } from "date-fns";
+import { format, formatDistanceToNow, parseISO, isValid } from "date-fns";
 import ReactMarkdown from "react-markdown";
-import { useState } from "react";
+import { useState, KeyboardEvent, ChangeEvent } from "react";
 import { useJournalStore } from "@/stores/journalStore";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 
 interface JournalCardProps {
   id: string;
   entry: string;
   createdAt: string;
+  updatedAt: string;
   emotions?: string[];
   tags?: string[];
   onFilterByEmotion?: (emotion: string) => void;
@@ -53,33 +58,72 @@ const JournalCard = ({
   id,
   entry,
   createdAt,
-  emotions,
-  tags,
+  updatedAt,
+  emotions = [],
+  tags = [],
   onFilterByEmotion,
   onFilterByTag,
 }: JournalCardProps) => {
   const [isDeleting, setIsDeleting] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
-  const deleteJournal = useJournalStore((state) => state.deleteJournal);
+  const [showEditDialog, setShowEditDialog] = useState(false);
 
-  let formattedDate = "Unknown date";
-  let formattedTime = "Unknown time";
+  // Edit states
+  const [editedEntry, setEditedEntry] = useState(entry);
+  const [editedEmotions, setEditedEmotions] = useState<string[]>([...emotions]);
+  const [editedTags, setEditedTags] = useState<string[]>([...tags]);
+  const [emotionInput, setEmotionInput] = useState("");
+  const [tagInput, setTagInput] = useState("");
+
+  const deleteJournal = useJournalStore((state) => state.deleteJournal);
+  const editJournal = useJournalStore((state) => state.editJournal);
+
+  // Parse dates for display
+  let formattedCreatedDate = "Unknown date";
+  let formattedCreatedTime = "Unknown time";
+  let formattedUpdatedDate = "Unknown date";
+  let formattedUpdatedTime = "Unknown time";
+  let isUpdated = false;
+  let timeAgo = "";
 
   try {
-    let parsedDate;
+    let parsedCreatedDate;
+    let parsedUpdatedDate;
 
     if (createdAt.includes(",") && createdAt.match(/AM|PM|am|pm/)) {
-      parsedDate = new Date(createdAt);
+      parsedCreatedDate = new Date(createdAt);
     } else {
-      parsedDate = parseISO(createdAt);
+      parsedCreatedDate = parseISO(createdAt);
     }
 
-    if (isValid(parsedDate)) {
-      formattedDate = format(parsedDate, "MMM d, yyyy");
-      formattedTime = format(parsedDate, "h:mm a");
+    if (updatedAt.includes(",") && updatedAt.match(/AM|PM|am|pm/)) {
+      parsedUpdatedDate = new Date(updatedAt);
+    } else {
+      parsedUpdatedDate = parseISO(updatedAt);
+    }
+
+    if (isValid(parsedCreatedDate)) {
+      formattedCreatedDate = format(parsedCreatedDate, "MMM d, yyyy");
+      formattedCreatedTime = format(parsedCreatedDate, "h:mm a");
+      timeAgo = formatDistanceToNow(parsedCreatedDate, { addSuffix: true });
+    }
+
+    if (isValid(parsedUpdatedDate)) {
+      formattedUpdatedDate = format(parsedUpdatedDate, "MMM d, yyyy");
+      formattedUpdatedTime = format(parsedUpdatedDate, "h:mm a");
+
+      // Check if updated time is different from created time
+      isUpdated = updatedAt !== createdAt;
+
+      if (isUpdated) {
+        timeAgo = `Updated ${formatDistanceToNow(parsedUpdatedDate, {
+          addSuffix: true,
+        })}`;
+      }
     }
   } catch (error) {
-    console.error("Error parsing date:", error, createdAt);
+    console.error("Error parsing date:", error, { createdAt, updatedAt });
   }
 
   // Truncate entry for card view
@@ -129,11 +173,104 @@ const JournalCard = ({
     }
   };
 
+  // Handle edit functionality
+  const handleEditClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    // Reset edited values to current values
+    setEditedEntry(entry);
+    setEditedEmotions([...emotions]);
+    setEditedTags([...tags]);
+    setShowEditDialog(true);
+  };
+
+  const handleSaveEdit = async () => {
+    if (!editedEntry.trim()) {
+      toast.error("Journal entry cannot be empty");
+      return;
+    }
+
+    setIsEditing(true);
+    try {
+      await editJournal(id, {
+        entry: editedEntry,
+        emotions: editedEmotions,
+        tags: editedTags,
+      });
+      toast.success("Journal entry updated successfully");
+      setShowEditDialog(false);
+    } catch (error) {
+      console.error("Error updating journal:", error);
+      toast.error("Failed to update journal entry");
+    } finally {
+      setIsEditing(false);
+    }
+  };
+
+  // Emotion input handlers
+  const handleEmotionInputChange = (e: ChangeEvent<HTMLInputElement>) => {
+    setEmotionInput(e.target.value);
+  };
+
+  const handleEmotionKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "," || e.key === "Enter") {
+      e.preventDefault();
+      addEmotion();
+    }
+  };
+
+  const addEmotion = () => {
+    const trimmedEmotion = emotionInput.trim();
+    if (trimmedEmotion && !editedEmotions.includes(trimmedEmotion)) {
+      setEditedEmotions([...editedEmotions, trimmedEmotion]);
+      setEmotionInput("");
+    }
+  };
+
+  const removeEmotion = (emotionToRemove: string) => {
+    setEditedEmotions(
+      editedEmotions.filter((emotion) => emotion !== emotionToRemove)
+    );
+  };
+
+  // Tag input handlers
+  const handleTagInputChange = (e: ChangeEvent<HTMLInputElement>) => {
+    setTagInput(e.target.value);
+  };
+
+  const handleTagKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "," || e.key === "Enter") {
+      e.preventDefault();
+      addTag();
+    }
+  };
+
+  const addTag = () => {
+    const trimmedTag = tagInput.trim();
+    if (trimmedTag && !editedTags.includes(trimmedTag)) {
+      setEditedTags([...editedTags, trimmedTag]);
+      setTagInput("");
+    }
+  };
+
+  const removeTag = (tagToRemove: string) => {
+    setEditedTags(editedTags.filter((tag) => tag !== tagToRemove));
+  };
+
   return (
     <>
       <Card className="min-h-[320px] w-full flex flex-col relative group">
-        {/* Delete button - appears on hover */}
-        <div className="absolute top-3 right-3 z-10 opacity-0 group-hover:opacity-100 transition-opacity">
+        {/* Action buttons - appear on hover */}
+        <div className="absolute top-3 right-3 z-10 opacity-0 group-hover:opacity-100 transition-opacity flex gap-1">
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-8 w-8 text-muted-foreground"
+            onClick={handleEditClick}
+            aria-label="Edit journal"
+          >
+            <Edit size={16} />
+          </Button>
           <Button
             variant="ghost"
             size="icon"
@@ -149,11 +286,20 @@ const JournalCard = ({
           <div className="flex flex-col space-y-1 text-sm text-muted-foreground">
             <div className="flex items-center">
               <CalendarIcon className="h-4 w-4 mr-1" />
-              <span>{formattedDate}</span>
+              <span>
+                {isUpdated ? formattedUpdatedDate : formattedCreatedDate}
+              </span>
             </div>
             <div className="flex items-center">
               <ClockIcon className="h-4 w-4 mr-1" />
-              <span>{formattedTime}</span>
+              <span>
+                {isUpdated ? formattedUpdatedTime : formattedCreatedTime}
+              </span>
+              {isUpdated && (
+                <span className="ml-1.5 text-xs italic font-light">
+                  (edited)
+                </span>
+              )}
             </div>
           </div>
         </CardHeader>
@@ -262,12 +408,15 @@ const JournalCard = ({
               <DialogHeader>
                 <DialogDescription className="flex flex-col space-y-1 text-sm pt-1">
                   <div className="flex items-center">
-                    <CalendarIcon className="h-4 w-4 mr-1" />
-                    <span>{formattedDate}</span>
+                    <CalendarIcon className="h-4 w-4 mr-1 text-primary" />
+                    <span className="font-medium">Created:</span>
+                    <span className="ml-2">{formattedCreatedDate}</span>
+                    <span className="mx-1">•</span>
+                    <span>{formattedCreatedTime}</span>
                   </div>
-                  <div className="flex items-center">
-                    <ClockIcon className="h-4 w-4 mr-1" />
-                    <span>{formattedTime}</span>
+
+                  <div className="text-xs text-muted-foreground mt-1 italic">
+                    {timeAgo}
                   </div>
                 </DialogDescription>
               </DialogHeader>
@@ -368,6 +517,18 @@ const JournalCard = ({
                     </div>
                   </div>
                 )}
+
+                <div className="flex justify-end mb-8">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={handleEditClick}
+                    className="flex items-center gap-1"
+                  >
+                    <Edit size={14} />
+                    Edit entry
+                  </Button>
+                </div>
               </div>
             </DialogContent>
           </Dialog>
@@ -403,6 +564,128 @@ const JournalCard = ({
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      {/* Edit Dialog */}
+      <Dialog open={showEditDialog} onOpenChange={setShowEditDialog}>
+        <DialogContent className="sm:max-w-[600px] md:max-w-[650px] md:min-w-[450px] p-4 sm:p-6 w-[calc(100vw-32px)] sm:w-auto">
+          <DialogHeader>
+            <DialogDescription className="text-lg font-medium">
+              Edit Journal Entry
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-4 mt-2">
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Journal Content</label>
+              <Textarea
+                value={editedEntry}
+                onChange={(e) => setEditedEntry(e.target.value)}
+                className="min-h-[200px] font-mono text-sm"
+                placeholder="Write your journal entry..."
+              />
+              <p className="text-xs text-muted-foreground">
+                You can use markdown for formatting
+              </p>
+            </div>
+
+            {/* Emotions input */}
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Emotions</label>
+              <div className="flex flex-wrap gap-2 mb-2">
+                {editedEmotions.map((emotion) => (
+                  <Badge
+                    key={emotion}
+                    variant="secondary"
+                    className="flex items-center gap-1"
+                  >
+                    {emotion}
+                    <button
+                      onClick={() => removeEmotion(emotion)}
+                      className="ml-1 rounded-full hover:bg-secondary/80 p-0.5"
+                      aria-label={`Remove ${emotion}`}
+                    >
+                      <X className="h-3 w-3" />
+                    </button>
+                  </Badge>
+                ))}
+              </div>
+              <div className="flex gap-2 items-center">
+                <Input
+                  value={emotionInput}
+                  onChange={handleEmotionInputChange}
+                  onKeyDown={handleEmotionKeyDown}
+                  onBlur={addEmotion}
+                  placeholder="Add emotions (e.g., happy, excited, calm)"
+                  className="flex-1"
+                />
+              </div>
+              <p className="text-xs text-muted-foreground">
+                Type an emotion and press enter or comma to add it
+              </p>
+            </div>
+
+            {/* Tags input */}
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Tags</label>
+              <div className="flex flex-wrap gap-2 mb-2">
+                {editedTags.map((tag) => (
+                  <Badge
+                    key={tag}
+                    variant="outline"
+                    className="flex items-center gap-1"
+                  >
+                    #{tag}
+                    <button
+                      onClick={() => removeTag(tag)}
+                      className="ml-1 rounded-full hover:bg-accent/50 p-0.5"
+                      aria-label={`Remove ${tag}`}
+                    >
+                      <X className="h-3 w-3" />
+                    </button>
+                  </Badge>
+                ))}
+              </div>
+              <div className="flex gap-2 items-center">
+                <Input
+                  value={tagInput}
+                  onChange={handleTagInputChange}
+                  onKeyDown={handleTagKeyDown}
+                  onBlur={addTag}
+                  placeholder="Add tags (e.g., work, family, reflection)"
+                  className="flex-1"
+                />
+              </div>
+              <p className="text-xs text-muted-foreground">
+                Type a tag and press enter or comma to add it
+              </p>
+            </div>
+          </div>
+
+          <div className="flex justify-end gap-2 mt-4">
+            <Button
+              variant="outline"
+              onClick={() => setShowEditDialog(false)}
+              disabled={isEditing}
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={handleSaveEdit}
+              disabled={isEditing || !editedEntry.trim()}
+              className={cn(isEditing && "opacity-70")}
+            >
+              {isEditing ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Saving...
+                </>
+              ) : (
+                "Save Changes"
+              )}
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </>
   );
 };
