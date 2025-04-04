@@ -4,7 +4,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { Loader, Send, ArrowLeft } from "lucide-react";
 import { toast } from "sonner";
 import TherapistImage from "@/assets/therapist.png";
-
+import ReactMarkdown from "react-markdown";
 import { ChatMessageList } from "@/components/ui/chat/chat-message-list";
 import {
   ChatBubble,
@@ -14,7 +14,7 @@ import {
 import { ChatInput } from "@/components/ui/chat/chat-input";
 import { Button } from "@/components/ui/button";
 import { ChatStore } from "@/stores/chatStore";
-import { Chat, ChatMessage as ApiChatMessage } from "@/types/chat.types";
+import { ChatMessage as ApiChatMessage } from "@/types/chat.types";
 
 // Message type definition for UI rendering
 interface Message {
@@ -136,7 +136,6 @@ const ChatPage = () => {
             : msg
         )
       );
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (error) {
       toast.error("Failed to send message. Please try again.");
       // Remove the loading message
@@ -188,6 +187,7 @@ const ChatPage = () => {
             <Loader className="h-8 w-8 animate-spin text-primary" />
           </div>
         ) : (
+          // Inside your return statement, where you render chat messages
           <ChatMessageList smooth>
             {messages.map((message) => (
               <ChatBubble
@@ -201,7 +201,49 @@ const ChatPage = () => {
                   variant={message.role === "user" ? "sent" : "received"}
                   isLoading={message.isLoading}
                 >
-                  {message.content}
+                  {message.role === "assistant" ? (
+                    <ReactMarkdown
+                      components={{
+                        p: ({ node, ...props }) => (
+                          <p className="mb-2 last:mb-0" {...props} />
+                        ),
+                        ul: ({ node, ...props }) => (
+                          <ul className="list-disc pl-5 mb-2" {...props} />
+                        ),
+                        ol: ({ node, ...props }) => (
+                          <ol className="list-decimal pl-5 mb-2" {...props} />
+                        ),
+                        li: ({ node, ...props }) => (
+                          <li className="mb-1" {...props} />
+                        ),
+                        a: ({ node, ...props }) => (
+                          <a className="text-primary underline" {...props} />
+                        ),
+                        blockquote: ({ node, ...props }) => (
+                          <blockquote
+                            className="border-l-2 border-muted pl-3 italic my-2"
+                            {...props}
+                          />
+                        ),
+                        code: ({ node, ...props }) => (
+                          <code
+                            className="bg-muted px-1.5 py-0.5 rounded text-sm"
+                            {...props}
+                          />
+                        ),
+                        pre: ({ node, ...props }) => (
+                          <pre
+                            className="bg-muted p-3 rounded overflow-x-auto my-2 text-sm"
+                            {...props}
+                          />
+                        ),
+                      }}
+                    >
+                      {message.content}
+                    </ReactMarkdown>
+                  ) : (
+                    message.content
+                  )}
                 </ChatBubbleMessage>
               </ChatBubble>
             ))}
