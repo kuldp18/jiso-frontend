@@ -188,6 +188,7 @@ const MoodsPage = () => {
               date={entry.createdAt || "Unknown date"}
               emotions={entry.emotions}
               description={entry.description || ""}
+              updatedAt={entry.updatedAt || ""}
             />
           ))}
         </div>
