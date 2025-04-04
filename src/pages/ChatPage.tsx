@@ -3,6 +3,7 @@ import { useState, useRef, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Loader, Send, ArrowLeft } from "lucide-react";
 import { toast } from "sonner";
+import TherapistImage from "@/assets/therapist.png";
 
 import { ChatMessageList } from "@/components/ui/chat/chat-message-list";
 import {
@@ -194,7 +195,7 @@ const ChatPage = () => {
                 variant={message.role === "user" ? "sent" : "received"}
               >
                 {message.role === "assistant" && (
-                  <ChatBubbleAvatar fallback="AI" />
+                  <ChatBubbleAvatar fallback="AI" src={TherapistImage} />
                 )}
                 <ChatBubbleMessage
                   variant={message.role === "user" ? "sent" : "received"}
