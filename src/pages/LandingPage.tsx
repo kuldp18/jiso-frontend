@@ -19,7 +19,7 @@ const LandingPage = () => {
         <div className="container mx-auto px-6 md:px-12 py-16 md:py-24 flex flex-col md:flex-row items-center gap-10 md:gap-16">
           {/* Hero Content */}
           <div className="flex-1 space-y-6 text-center md:text-left">
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight text-primary">
+            <h1 className="text-5xl md:text-5xl lg:text-6xl font-bold leading-tight text-primary">
               <span className="block">Jiso</span>
               <span className="text-3xl md:text-4xl text-foreground/90">
                 Your personal space for healing and growth.
@@ -39,8 +39,8 @@ const LandingPage = () => {
             </div>
           </div>
 
-          {/* Hero Image - Adjusted for portrait style */}
-          <div className="flex-1 flex justify-center bg-gradient-to-br from-primary/5 to-primary/10 p-6 rounded-2xl border border-primary/10">
+          {/* Hero Image */}
+          <div className="flex-1 hidden md:flex justify-center bg-gradient-to-br from-primary/5 to-primary/10 p-6 rounded-2xl border border-primary/10">
             <div className="w-full max-w-sm mx-auto md:max-w-none md:w-auto">
               <img
                 src={HeroImg}
