@@ -16,9 +16,8 @@ interface ThemeToggleProps {
 
 const navLinks: NavLinkItem[] = [
   { path: "#home", label: "Home" },
-  { path: "#features", label: "Features" },
   { path: "#about", label: "About" },
-  { path: "#contact", label: "Contact" },
+  { path: "#features", label: "Features" },
 ];
 
 const Navbar = (): JSX.Element => {
