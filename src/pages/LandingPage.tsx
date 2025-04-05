@@ -21,7 +21,7 @@ const LandingPage = () => {
           <div className="flex-1 space-y-6 text-center md:text-left">
             <h1 className="text-5xl md:text-5xl lg:text-6xl font-bold leading-tight text-primary">
               <span className="block">Jiso</span>
-              <span className="text-3xl md:text-4xl text-foreground/90">
+              <span className="text-3xl text-foreground/90">
                 Your personal space for healing and growth.
               </span>
             </h1>
