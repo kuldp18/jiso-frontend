@@ -120,10 +120,10 @@ To use the AI features with Qwen 2.5 7b:
 
 1. **Install Ollama** from [https://ollama.com/](https://ollama.com/) for your platform.
 
-2. **Pull the Qwen 2.5 7b model:**
+2. **Pull or Run the Qwen 2.5 7b model:**
 
    ```bash
-   ollama pull qwen2:7b
+   ollama run qwen2.5
    ```
 
 3. **Run Ollama:**
